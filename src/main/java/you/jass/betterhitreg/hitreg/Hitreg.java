@@ -1,16 +1,16 @@
 package you.jass.betterhitreg.hitreg;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import you.jass.betterhitreg.settings.Commands;
@@ -26,7 +26,7 @@ import static you.jass.betterhitreg.utility.MultiVersion.message;
 
 public class Hitreg {
     private static final Logger log = LoggerFactory.getLogger(Hitreg.class);
-    public static MinecraftClient client;
+    public static Minecraft client;
     public static int lastTarget;
     public static LivingEntity target;
     public static int tick;
@@ -47,9 +47,9 @@ public class Hitreg {
     public static boolean targetIsBlocking;
     public static boolean hitWasFarFromPrevious;
     public static RegQueue last100Regs = new RegQueue(100);
-    public static Vec3d lastAttackLocation = Vec3d.ZERO;
-    public static Vec3d targetLocation = Vec3d.ZERO;
-    public static Vec3d previousTargetLocation = Vec3d.ZERO;
+    public static Vec3 lastAttackLocation = Vec3.ZERO;
+    public static Vec3 targetLocation = Vec3.ZERO;
+    public static Vec3 previousTargetLocation = Vec3.ZERO;
     public static long fightStartedAt;
     public static double ground;
     public static boolean inSky;
@@ -80,7 +80,7 @@ public class Hitreg {
     public static boolean tutorialAlreadySeen;
 
     public static void tick() {
-        if (client.player == null || client.world == null) return;
+        if (client.player == null || client.level == null) return;
         tick++;
         playerId = client.player.getId();
 
@@ -88,11 +88,7 @@ public class Hitreg {
 
         if (metronome >= 10) {
             if (tick % metronome == 0) {
-                //version 1.21.10-
-                //Hitreg.client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
-
-                //version 1.21.11+
-                Hitreg.client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK, 1));
+                Hitreg.client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
             }
         }
 
@@ -108,15 +104,15 @@ public class Hitreg {
         if (sprinting && !wasSprinting) sprintIsReset = true;
         wasSprinting = sprinting;
 
-        boolean swinging = client.options.attackKey.isPressed();
+        boolean swinging = client.options.keyAttack.isDown();
         if (swinging && !wasSwinging) yourSwings++;
         wasSwinging = swinging;
 
-        if (client.player.timeUntilRegen == 20) lastTickHit = tick;
-        if (bothAlive && client.player.getEyePos().squaredDistanceTo(Render.getClosestPoint(client.player, target)) <= 9) lastTickInRange = tick;
+        if (client.player.invulnerableTime == 20) lastTickHit = tick;
+        if (bothAlive && client.player.getEyePosition().distanceToSqr(Render.getClosestPoint(client.player, target)) <= 9) lastTickInRange = tick;
         else lastTickOutOfRange = tick;
-        if (client.options.jumpKey.isPressed() && client.player.isOnGround()) lastTickJumped = tick;
-        if (client.options.backKey.isPressed()) lastTickBacked = tick;
+        if (client.options.keyJump.isDown() && MultiVersion.isOnGround(client.player)) lastTickJumped = tick;
+        if (client.options.keyDown.isDown()) lastTickBacked = tick;
 
         //if the last time you were damaged was 5 ticks ago
         if (tick - lastTickHit == 5) {
@@ -157,8 +153,8 @@ public class Hitreg {
             }
 
             fighting = false;
-            targetLocation = Vec3d.ZERO;
-            previousTargetLocation = Vec3d.ZERO;
+            targetLocation = Vec3.ZERO;
+            previousTargetLocation = Vec3.ZERO;
             HitTracker.clear();
         } else {
             HitTracker.process();
@@ -216,7 +212,7 @@ public class Hitreg {
     }
 
     public static double getGround(Entity entity) {
-        if (entity.isOnGround()) return entity.getY();
+        if (MultiVersion.isOnGround(entity)) return entity.getY();
         else {
             int x = entity.getBlockX();
             int y = entity.getBlockY();
@@ -225,8 +221,8 @@ public class Hitreg {
             for (int i = 0; i <= 3; i++) {
                 int under = y - i;
                 BlockPos position = new BlockPos(x, under, z);
-                VoxelShape shape = client.world.getBlockState(position).getCollisionShape(client.world, position);
-                if (!shape.isEmpty()) return under + shape.getMax(Direction.Axis.Y);
+                VoxelShape shape = client.level.getBlockState(position).getCollisionShape(client.level, position);
+                if (!shape.isEmpty()) return under + shape.max(Direction.Axis.Y);
             }
         }
 
@@ -234,19 +230,19 @@ public class Hitreg {
     }
 
     public static int getPing(UUID uuid) {
-        if (client.getNetworkHandler() == null) return 0;
-        PlayerListEntry entry = client.getNetworkHandler().getPlayerListEntry(uuid);
+        if (client.getConnection() == null) return 0;
+        PlayerInfo entry = client.getConnection().getPlayerInfo(uuid);
         return entry == null ? -1 : entry.getLatency();
     }
 
     public static int getPlayersPing() {
         if (client.player == null) return 0;
-        return getPing(client.player.getUuid());
+        return getPing(client.player.getUUID());
     }
 
     public static int getTargetsPing() {
         if (target == null) return 0;
-        return getPing(target.getUuid());
+        return getPing(target.getUUID());
     }
 
     public static boolean isToggled() {
@@ -276,17 +272,17 @@ public class Hitreg {
         return distanceFrom(MultiVersion.getBasePosition(client.player), MultiVersion.getBasePosition(target));
     }
 
-    public static double distanceFromPlayer(Vec3d position) {
+    public static double distanceFromPlayer(Vec3 position) {
         if (client.player == null) return Double.MAX_VALUE;
         return distanceFrom(MultiVersion.getBasePosition(client.player), position);
     }
 
-    public static double distanceFromTarget(Vec3d position) {
+    public static double distanceFromTarget(Vec3 position) {
         if (target == null) return Double.MAX_VALUE;
         return distanceFrom(MultiVersion.getBasePosition(target), position);
     }
 
-    public static double distanceFrom(Vec3d a, Vec3d b) {
+    public static double distanceFrom(Vec3 a, Vec3 b) {
         if (a == null || b == null) return Double.MAX_VALUE;
         double dx = a.x - b.x;
         double dz = a.z - b.z;

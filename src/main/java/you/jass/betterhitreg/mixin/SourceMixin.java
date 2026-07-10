@@ -1,6 +1,6 @@
 package you.jass.betterhitreg.mixin;
 
-import net.minecraft.client.sound.Source;
+import com.mojang.blaze3d.audio.Channel;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.EXTEfx;
@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import you.jass.betterhitreg.hitreg.Hitreg;
 
-@Mixin(Source.class)
+@Mixin(Channel.class)
 public abstract class SourceMixin {
-    @Final @Shadow private int pointer;
+    @Final @Shadow private int source;
 
     @Inject(method = "play", at = @At("TAIL"))
     private void play(CallbackInfo ci) {
@@ -41,6 +41,6 @@ public abstract class SourceMixin {
             }
         }
 
-        if (useFilter) AL10.alSourcei(pointer, EXTEfx.AL_DIRECT_FILTER, filter);
+        if (useFilter) AL10.alSourcei(source, EXTEfx.AL_DIRECT_FILTER, filter);
     }
 }

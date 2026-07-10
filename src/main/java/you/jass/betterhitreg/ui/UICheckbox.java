@@ -1,20 +1,20 @@
 package you.jass.betterhitreg.ui;
 
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Font;
 
 import java.awt.*;
 import java.util.function.Consumer;
 
 public class UICheckbox implements UIElement {
     public final int x, y, size, gap;
-    public final TextRenderer textRenderer;
+    public final Font textRenderer;
     public final String label;
     public boolean checked;
     public final Consumer<Boolean> onChange;
     public final UITheme theme;
     public final boolean gradient;
 
-    public UICheckbox(int x, int y, int size, int gap, TextRenderer textRenderer, String label, UITheme theme, boolean gradient, boolean initial, Consumer<Boolean> onChange) {
+    public UICheckbox(int x, int y, int size, int gap, Font textRenderer, String label, UITheme theme, boolean gradient, boolean initial, Consumer<Boolean> onChange) {
         this.x = x;
         this.y = y - 6;
         this.size = size;
@@ -52,14 +52,14 @@ public class UICheckbox implements UIElement {
         if (checked && !hovered && gradient) UIUtils.drawGradientText(renderer, textRenderer, label, x, y + 2, baseText.brighter(), baseText.darker(), false);
         else UIUtils.drawText(renderer, textRenderer, label, x, y + 2, baseText, false);
 
-        UIUtils.drawBorder(renderer, x + gap, y, size, size, border);
+        UIUtils.renderOutline(renderer, x + gap, y, size, size, border);
 
         if (checked) UIUtils.drawRectangle(renderer, x + gap + 2, y + 2, size - 4, size - 4, bg);
     }
 
     private boolean isHovered(double mx, double my) {
-        int textWidth = textRenderer.getWidth(label);
-        int height = Math.max(size, textRenderer.fontHeight);
+        int textWidth = textRenderer.width(label);
+        int height = Math.max(size, textRenderer.lineHeight);
 
         int startX = x;
         int endX   = x + gap + size;

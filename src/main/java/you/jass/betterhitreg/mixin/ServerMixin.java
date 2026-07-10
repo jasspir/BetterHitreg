@@ -7,31 +7,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import you.jass.betterhitreg.utility.PacketProcessor;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ClientPlayNetworkHandler.class)
+@Mixin(ClientPacketListener.class)
 public class ServerMixin {
-    @Inject(method = "onEntityDamage(Lnet/minecraft/network/packet/s2c/play/EntityDamageS2CPacket;)V", at = @At("HEAD"), cancellable = true)
-    private void onEntityDamage(EntityDamageS2CPacket packet, CallbackInfo ci) {
+    @Inject(method = "handleDamageEvent(Lnet/minecraft/network/protocol/game/ClientboundDamageEventPacket;)V", at = @At("HEAD"), cancellable = true)
+    private void handleDamageEvent(ClientboundDamageEventPacket packet, CallbackInfo ci) {
         //this will run once on the network thread & once on the main thread, unless a server like minemenclub bundles it
         if (!PacketProcessor.processDamage(packet)) ci.cancel();
     }
 
-    @Inject(method = "onEntityAnimation(Lnet/minecraft/network/packet/s2c/play/EntityAnimationS2CPacket;)V", at = @At("HEAD"), cancellable = true)
-    private void onEntityAnimation(EntityAnimationS2CPacket packet, CallbackInfo ci) {
-        if (!MinecraftClient.getInstance().isOnThread()) return;
+    @Inject(method = "handleAnimate(Lnet/minecraft/network/protocol/game/ClientboundAnimatePacket;)V", at = @At("HEAD"), cancellable = true)
+    private void handleAnimate(ClientboundAnimatePacket packet, CallbackInfo ci) {
+        if (!Minecraft.getInstance().isSameThread()) return;
         if (!PacketProcessor.processAnimation(packet)) ci.cancel();
     }
 
-    @Inject(method = "onPlaySound(Lnet/minecraft/network/packet/s2c/play/PlaySoundS2CPacket;)V", at = @At("HEAD"), cancellable = true)
-    private void onPlaySound(PlaySoundS2CPacket packet, CallbackInfo ci) {
-        if (!MinecraftClient.getInstance().isOnThread()) return;
+    @Inject(method = "handleSoundEvent(Lnet/minecraft/network/protocol/game/ClientboundSoundPacket;)V", at = @At("HEAD"), cancellable = true)
+    private void handleSoundEvent(ClientboundSoundPacket packet, CallbackInfo ci) {
+        if (!Minecraft.getInstance().isSameThread()) return;
         if (!PacketProcessor.processSound(packet)) ci.cancel();
     }
 }

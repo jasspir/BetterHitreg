@@ -1,36 +1,42 @@
 package you.jass.betterhitreg.settings;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 
+//version 1.21.11-
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+
+//version 26.1+
+//import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
+//import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
+
 import static you.jass.betterhitreg.utility.MultiVersion.message;
 
 public class Commands {
     public static void initialize() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) -> {
-            var root = ClientCommandManager.literal("hitreg");
+            var root = literal("hitreg");
 
             for (Toggle toggle : Toggle.values()) {
-                root = root.then(ClientCommandManager.literal(toggle.key())
+                root = root.then(literal(toggle.key())
                 .executes(context -> {
                    toggle.toggle();
                    return 1;
                 }));
             }
 
-            root = root.then(ClientCommandManager.literal("setHitreg")
+            root = root.then(literal("setHitreg")
                    .then(argument("value", IntegerArgumentType.integer())
                    .executes(context -> setHitreg(IntegerArgumentType.getInteger(context, "value"))))
                    .executes(context -> setHitreg(0)));
 
-            root = root.then(ClientCommandManager.literal("setMuffle")
+            root = root.then(literal("setMuffle")
                     .then(argument("value", IntegerArgumentType.integer())
                     .executes(context -> setMuffle(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setMuffle(0)));
 
-            root = root.then(ClientCommandManager.literal("setSharpen")
+            root = root.then(literal("setSharpen")
                     .then(argument("value", IntegerArgumentType.integer())
                             .executes(context -> setSharpen(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setSharpen(0)));
@@ -57,7 +63,7 @@ public class Commands {
     }
 
     public static String getUIKey() {
-        return you.jass.betterhitreg.BetterHitreg.uiKey.getBoundKeyTranslationKey()
+        return you.jass.betterhitreg.BetterHitreg.uiKey.saveString()
                 .replace("key.keyboard.", "")
                 .replace("key.mouse.", "")
                 .replace(".", " ")

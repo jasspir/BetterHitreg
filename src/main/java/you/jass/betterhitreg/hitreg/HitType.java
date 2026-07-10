@@ -1,13 +1,13 @@
 package you.jass.betterhitreg.hitreg;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.damage.DamageSources;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 import you.jass.betterhitreg.mixin.EntityAccessor;
 import you.jass.betterhitreg.utility.MultiVersion;
 
@@ -15,17 +15,17 @@ import java.util.List;
 import java.util.Arrays;
 
 public enum HitType {
-    TOO_EARLY(SoundEvents.ENTITY_PLAYER_ATTACK_WEAK),
-    KNOCKBACK(SoundEvents.ENTITY_PLAYER_ATTACK_KNOCKBACK,
-            SoundEvents.ENTITY_PLAYER_ATTACK_STRONG,
-            SoundEvents.ENTITY_PLAYER_HURT),
-    CRITICAL(SoundEvents.ENTITY_PLAYER_ATTACK_CRIT,
-            SoundEvents.ENTITY_PLAYER_HURT),
-    SWEEP(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP,
-            SoundEvents.ENTITY_PLAYER_HURT),
-    FULL_PICK(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG,
-            SoundEvents.ENTITY_PLAYER_HURT),
-    HALF_PICK(SoundEvents.ENTITY_PLAYER_HURT);
+    TOO_EARLY(SoundEvents.PLAYER_ATTACK_WEAK),
+    KNOCKBACK(SoundEvents.PLAYER_ATTACK_KNOCKBACK,
+            SoundEvents.PLAYER_ATTACK_STRONG,
+            SoundEvents.PLAYER_HURT),
+    CRITICAL(SoundEvents.PLAYER_ATTACK_CRIT,
+            SoundEvents.PLAYER_HURT),
+    SWEEP(SoundEvents.PLAYER_ATTACK_SWEEP,
+            SoundEvents.PLAYER_HURT),
+    FULL_PICK(SoundEvents.PLAYER_ATTACK_STRONG,
+            SoundEvents.PLAYER_HURT),
+    HALF_PICK(SoundEvents.PLAYER_HURT);
 
     private final List<SoundEvent> sounds;
 
@@ -33,12 +33,12 @@ public enum HitType {
         this.sounds = Arrays.asList(sounds);
     }
 
-    public void playSounds(Vec3d location) {
-        MinecraftClient client = Hitreg.client;
-        if (client.world == null || client.player == null) return;
+    public void playSounds(Vec3 location) {
+        Minecraft client = Hitreg.client;
+        if (client.level == null || client.player == null) return;
         for (SoundEvent sound : sounds) {
-            if (sound.equals(SoundEvents.ENTITY_PLAYER_HURT)) sound = getHurtSound();
-            client.world.playSound(client.player, location.x, location.y, location.z, sound, SoundCategory.PLAYERS, 1, 1);
+            if (sound.equals(SoundEvents.PLAYER_HURT)) sound = getHurtSound();
+            client.level.playSound(client.player, location.x, location.y, location.z, sound, SoundSource.PLAYERS, 1, 1);
         }
     }
 
@@ -65,24 +65,24 @@ public enum HitType {
     }
 
     public static HitType of(SoundEvent sound) {
-        if (sound.equals(SoundEvents.ENTITY_PLAYER_ATTACK_WEAK)) return TOO_EARLY;
-        if (sound.equals(SoundEvents.ENTITY_PLAYER_ATTACK_KNOCKBACK)) return KNOCKBACK;
-        if (sound.equals(SoundEvents.ENTITY_PLAYER_ATTACK_CRIT)) return CRITICAL;
-        if (sound.equals(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP)) return SWEEP;
-        if (sound.equals(SoundEvents.ENTITY_PLAYER_ATTACK_STRONG)) return FULL_PICK;
-        if (sound.equals(SoundEvents.ENTITY_PLAYER_HURT)) return HALF_PICK;
+        if (sound.equals(SoundEvents.PLAYER_ATTACK_WEAK)) return TOO_EARLY;
+        if (sound.equals(SoundEvents.PLAYER_ATTACK_KNOCKBACK)) return KNOCKBACK;
+        if (sound.equals(SoundEvents.PLAYER_ATTACK_CRIT)) return CRITICAL;
+        if (sound.equals(SoundEvents.PLAYER_ATTACK_SWEEP)) return SWEEP;
+        if (sound.equals(SoundEvents.PLAYER_ATTACK_STRONG)) return FULL_PICK;
+        if (sound.equals(SoundEvents.PLAYER_HURT)) return HALF_PICK;
 
         //version 1.21.1-
-        //if (sound.getId().toTranslationKey().contains("hurt")) return HALF_PICK;
+        //if (sound.getLocation().toLanguageKey().contains("hurt")) return HALF_PICK;
 
         //version 1.21.2+
-        if (sound.id().toTranslationKey().contains("hurt")) return HALF_PICK;
+        if (sound.location().toLanguageKey().contains("hurt")) return HALF_PICK;
 
         return null;
     }
     
     public static SoundEvent getHurtSound() {
-        if (Hitreg.target == null) return SoundEvents.ENTITY_PLAYER_HURT;
-        return ((EntityAccessor) Hitreg.target).getHurtSound(Hitreg.target.getDamageSources().generic());
+        if (Hitreg.target == null) return SoundEvents.PLAYER_HURT;
+        return ((EntityAccessor) Hitreg.target).getHurtSound(Hitreg.target.damageSources().generic());
     }
 }

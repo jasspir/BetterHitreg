@@ -1,9 +1,9 @@
 package you.jass.betterhitreg.utility;
 
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.core.Holder;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
 import you.jass.betterhitreg.hitreg.HitType;
 import you.jass.betterhitreg.hitreg.Hitreg;
 import you.jass.betterhitreg.settings.Toggle;
@@ -11,9 +11,9 @@ import you.jass.betterhitreg.settings.Toggle;
 import static you.jass.betterhitreg.hitreg.Hitreg.*;
 
 public class Sound {
-    public PlaySoundS2CPacket packet;
+    public ClientboundSoundPacket packet;
     public String sound;
-    public Vec3d location;
+    public Vec3 location;
     public SoundEvent event;
     public HitType hitType;
     public long timestamp;
@@ -22,16 +22,16 @@ public class Sound {
     public boolean processed;
     public boolean skip;
 
-    public Sound(PlaySoundS2CPacket packet) {
+    public Sound(ClientboundSoundPacket packet) {
         this.packet = packet;
-        this.sound = packet.getSound().getKey().isPresent() ? packet.getSound().getKey().get().toString() : "";
-        this.location = new Vec3d(packet.getX(), packet.getY(), packet.getZ());
+        this.sound = packet.getSound().unwrapKey().isPresent() ? packet.getSound().unwrapKey().get().toString() : "";
+        this.location = new Vec3(packet.getX(), packet.getY(), packet.getZ());
         this.event = packet.getSound().value();
 
         //subtract 2 because we run this on the main thread which runs 1-5ms later than the network thread
         this.timestamp = System.currentTimeMillis() - 2;
 
-        this.legacy = packet.getSound().getType() == RegistryEntry.Type.DIRECT;
+        this.legacy = packet.getSound().kind() == Holder.Kind.DIRECT;
         if (!legacy) this.modern = sound.contains("hurt") || sound.contains("player.attack");
     }
 
@@ -43,8 +43,8 @@ public class Sound {
     }
 
     public void play() {
-        if (client.world == null) return;
-        client.world.playSound(client.player, packet.getX(), packet.getY(), packet.getZ(), packet.getSound(), packet.getCategory(), packet.getVolume(), packet.getPitch(), packet.getSeed());
+        if (client.level == null) return;
+        client.level.playSeededSound(client.player, packet.getX(), packet.getY(), packet.getZ(), packet.getSound(), packet.getSource(), packet.getVolume(), packet.getPitch(), packet.getSeed());
     }
 
     public boolean nearPlayer() {

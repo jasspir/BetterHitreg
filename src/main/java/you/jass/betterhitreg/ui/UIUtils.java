@@ -1,6 +1,6 @@
 package you.jass.betterhitreg.ui;
 
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Font;
 import you.jass.betterhitreg.utility.MultiVersion;
 
 import java.awt.*;
@@ -36,19 +36,19 @@ public final class UIUtils {
         MultiVersion.drawHorizontalGradient(renderer, x, y, w, h, leftColor, rightColor);
     }
 
-    public static void drawBorder(Object renderer, int x, int y, int w, int h, Color c) {
-        MultiVersion.drawBorder(renderer, x, y, w, h, c);
+    public static void renderOutline(Object renderer, int x, int y, int w, int h, Color c) {
+        MultiVersion.renderOutline(renderer, x, y, w, h, c);
     }
 
     public static void drawGradientBorder(Object renderer, int x, int y, int w, int h, Color start, Color end) {
         MultiVersion.drawGradientBorder(renderer, x, y, w, h, start, end);
     }
 
-    public static void drawText(Object renderer, TextRenderer tr, String s, int x, int y, Color c, boolean center) {
+    public static void drawText(Object renderer, Font tr, String s, int x, int y, Color c, boolean center) {
         MultiVersion.drawText(renderer, tr, s, x, y, c, center);
     }
 
-    public static void drawGradientText(Object renderer, TextRenderer tr, String s, int x, int y, Color start, Color end, boolean center) {
+    public static void drawGradientText(Object renderer, Font tr, String s, int x, int y, Color start, Color end, boolean center) {
         MultiVersion.drawGradientText(renderer, tr, s, x, y, start, end, center);
     }
 

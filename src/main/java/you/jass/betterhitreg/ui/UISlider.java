@@ -1,6 +1,6 @@
 package you.jass.betterhitreg.ui;
 
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Font;
 
 import java.awt.*;
 import java.util.function.Consumer;
@@ -12,7 +12,7 @@ public class UISlider implements UIElement {
     public final int gap;
     public final float precision;
     public final String text, prefix, suffix;
-    public final TextRenderer textRenderer;
+    public final Font textRenderer;
     private final float initialValue;
     public boolean dragging;
     public final Consumer<Float> onDrag;
@@ -21,7 +21,7 @@ public class UISlider implements UIElement {
     public final boolean gradient;
     public final boolean toggle;
 
-    public UISlider(int x, int y, int textX, int width, float min, float max, float initial, int gap, float precision, String text, String prefix, String suffix, TextRenderer textRenderer, UITheme theme, boolean gradient, boolean toggle, Consumer<Float> onDrag, Consumer<Integer> onStop) {
+    public UISlider(int x, int y, int textX, int width, float min, float max, float initial, int gap, float precision, String text, String prefix, String suffix, Font textRenderer, UITheme theme, boolean gradient, boolean toggle, Consumer<Float> onDrag, Consumer<Integer> onStop) {
         this.x = x;
         this.y = y;
         this.width = width;
