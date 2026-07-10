@@ -32,5 +32,6 @@
         "modmenu.modrinth" : "https://modrinth.com/mod/betterhitreg"
       }
     }
-  }
+  },
+  "accessWidener": "${class_tweaker}"
 }

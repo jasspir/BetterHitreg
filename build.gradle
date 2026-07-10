@@ -79,6 +79,12 @@ dependencies {
     }
 }
 
+def classTweaker = isUnobfuscated ? "unobfuscated.classTweaker" : "obfuscated.classTweaker"
+
+loom {
+    accessWidenerPath.set(file("src/main/resources/${classTweaker}"))
+}
+
 processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
@@ -89,7 +95,8 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+                "loader_version": project.loader_version,
+                "class_tweaker": "${classTweaker}"
     }
 
     filesMatching("betterhitreg.mixins.json") {
