@@ -85,8 +85,15 @@ public class Hit {
         if (type == null) return;
         expectedSound = type.getMainSound();
 
-        if (!tooEarlyForDamage) HitTracker.add(this);
-        if (Hitreg.isToggled()) Scheduler.schedule(Settings.getHitreg(), this::run);
+        //decide once at hit time whether the mod replaces the server's feedback, the target's blocking state may change before the server's packets arrive
+        boolean handled = Hitreg.isToggled();
+
+        if (!tooEarlyForDamage) {
+            HitTracker.add(this);
+            Hitreg.lastHitHandled = handled;
+        }
+
+        if (handled) Scheduler.schedule(Settings.getHitreg(), this::run);
     }
 
     public void run() {

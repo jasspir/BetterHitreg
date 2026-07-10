@@ -35,8 +35,9 @@ public class Hitreg {
     public static long lastAnimation;
     public static boolean alreadyAnimated;
     public static boolean alreadyKnockedBack;
-    public static boolean wasMovingForward;
+    public static boolean wasSprinting;
     public static boolean sprintIsReset = true;
+    public static boolean lastHitHandled;
     public static boolean fighting = false;
     public static boolean wasGhosted;
     public static boolean newTarget = true;
@@ -101,9 +102,10 @@ public class Hitreg {
         updateFightState();
         updateGround();
 
-        boolean movingForward = client.options.forwardKey.isPressed();
-        if (movingForward && !wasMovingForward) sprintIsReset = true;
-        wasMovingForward = movingForward;
+        //the server only re-learns your sprint when the client restarts sprinting across ticks (W-tap, shift release, etc.)
+        boolean sprinting = client.player.isSprinting();
+        if (sprinting && !wasSprinting) sprintIsReset = true;
+        wasSprinting = sprinting;
 
         boolean swinging = client.options.attackKey.isPressed();
         if (swinging && !wasSwinging) yourSwings++;
