@@ -8,7 +8,6 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.util.math.MathHelper;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,8 +46,7 @@ public abstract class AttackMixin {
         hit.wasInVehicle = client.player.hasVehicle();
         hit.wasBlind = client.player.hasStatusEffect(StatusEffects.BLINDNESS);
         hit.wasHoldingSword = client.player.getMainHandStack().isIn(ItemTags.SWORDS);
-        //vanilla only sweeps below 2.5x movement speed
-        hit.wasMovingFast = client.player.getMovement().horizontalLengthSquared() >= MathHelper.square(client.player.getMovementSpeed() * 2.5);
+        hit.wasMovingFast = MultiVersion.isMovingFast();
         hit.swordHadSharpness = MultiVersion.hasSharpness();
         hit.sprintWasReset = sprintIsReset;
         hit.wasNewTarget = lastTarget != target.getId();

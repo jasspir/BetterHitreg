@@ -41,6 +41,7 @@ import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.*;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import org.joml.Matrix4f;
@@ -134,6 +135,16 @@ public class MultiVersion {
 
         //version 1.21.9+
         return entity.getEntityPos();
+    }
+
+    public static boolean isMovingFast() {
+        //vanilla doesn't sweep when moving faster than your movement speed, 1.21.2 changed the check to compare actual movement against 2.5x
+
+        //version 1.21.1-
+        //return client.player.horizontalSpeed - client.player.prevHorizontalSpeed >= client.player.getMovementSpeed();
+
+        //version 1.21.2+
+        return client.player.getMovement().horizontalLengthSquared() >= MathHelper.square(client.player.getMovementSpeed() * 2.5);
     }
 
     public static void playParticles(String type, Entity entity) {
