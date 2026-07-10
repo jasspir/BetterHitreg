@@ -3,18 +3,28 @@ package you.jass.betterhitreg;
 //version 1.21.8-
 //import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 
-//version 1.21.10+
+//version 1.21.10 - 1.21.11
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.minecraft.client.gui.DrawContext;
 
+//version 26.1+
+//import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+//import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+
+//version 1.21.11-
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import you.jass.betterhitreg.utility.MultiVersion;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+//version 1.21.9 - 1.21.10
+//import net.minecraft.resources.ResourceLocation;
+
+//version 1.21.11+
+import net.minecraft.resources.Identifier;
+
 import org.lwjgl.glfw.GLFW;
 import you.jass.betterhitreg.settings.Commands;
 import you.jass.betterhitreg.ui.UIScreen;
@@ -23,12 +33,12 @@ import you.jass.betterhitreg.utility.Render;
 import static you.jass.betterhitreg.hitreg.Hitreg.*;
 
 public class BetterHitreg implements ModInitializer {
-    public static KeyBinding uiKey;
-    public static KeyBinding handKey;
-    public static KeyBinding leftKey;
-    public static KeyBinding rightKey;
-    public static KeyBinding upKey;
-    public static KeyBinding downKey;
+    public static KeyMapping uiKey;
+    public static KeyMapping handKey;
+    public static KeyMapping leftKey;
+    public static KeyMapping rightKey;
+    public static KeyMapping upKey;
+    public static KeyMapping downKey;
     public static int handSwitchCooldown;
     public static int scoreCooldown;
     public static int leftScore;
@@ -36,7 +46,7 @@ public class BetterHitreg implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        client = MinecraftClient.getInstance();
+        client = Minecraft.getInstance();
         Commands.initialize();
         Render.updateColors();
 
@@ -49,112 +59,137 @@ public class BetterHitreg implements ModInitializer {
 //            Render.render(context.camera());
 //        });
 
-        //version 1.21.10+
+        //version 1.21.10 - 1.21.11
         WorldRenderEvents.END_MAIN.register(context -> {
-            Render.render(context.gameRenderer().getCamera());
+            Render.render(context.gameRenderer().getMainCamera());
         });
 
+        //version 26.1 - 26.1.2
+//        LevelRenderEvents.END_MAIN.register(context -> {
+//            Render.render(context.gameRenderer().getMainCamera());
+//        });
+
+        //version 26.2+
+//        LevelRenderEvents.END_MAIN.register(context -> {
+//            Render.render(context.gameRenderer().mainCamera());
+//        });
+
+        //version 1.19.4
+//        HudRenderCallback.EVENT.register((context, tickCounter) -> {
+//            if (client.level == null || client.font == null || (leftScore == 0 && rightScore == 0)) return;
+//            String scoreText = "Score: " + leftScore + " - " + rightScore;
+//            client.font.drawShadow(context, scoreText, 10, 10, 0xFFFFFFFF);
+//        });
+
+        //version 1.20 - 1.21.11
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
-            if (client.world == null || client.textRenderer == null || (leftScore == 0 && rightScore == 0)) return;
+            if (client.level == null || client.font == null || (leftScore == 0 && rightScore == 0)) return;
             String scoreText = "Score: " + leftScore + " - " + rightScore;
-
-            //version 1.19.4
-            client.textRenderer.drawWithShadow(context, scoreText, 10, 10, 0xFFFFFFFF);
-
-            //version 1.20+
-            context.drawTextWithShadow(client.textRenderer, scoreText, 10, 10, 0xFFFFFFFF);
+            context.drawString(client.font, scoreText, 10, 10, 0xFFFFFFFF);
         });
+
+        //version 26.1+
+//        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("betterhitreg", "score"), (context, tickCounter) -> {
+//            if (client.level == null || client.font == null || (leftScore == 0 && rightScore == 0)) return;
+//            String scoreText = "Score: " + leftScore + " - " + rightScore;
+//            context.text(client.font, scoreText, 10, 10, 0xFFFFFFFF, true);
+//        });
 
         //version 1.21.8-
-//        uiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//        uiKey = MultiVersion.registerKey(new KeyMapping(
 //                "Open Hitreg Menu",
-//                InputUtil.Type.KEYSYM,
+//                InputConstants.Type.KEYSYM,
 //                GLFW.GLFW_KEY_H,
 //                "Hitreg"
 //        ));
-//        handKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//        handKey = MultiVersion.registerKey(new KeyMapping(
 //                "Switch Hand",
-//                InputUtil.Type.KEYSYM,
+//                InputConstants.Type.KEYSYM,
 //                GLFW.GLFW_KEY_UNKNOWN,
 //                "Hitreg"
 //        ));
-//        leftKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//        leftKey = MultiVersion.registerKey(new KeyMapping(
 //                "Increase Left Score",
-//                InputUtil.Type.KEYSYM,
+//                InputConstants.Type.KEYSYM,
 //                GLFW.GLFW_KEY_LEFT,
 //                "Hitreg"
 //        ));
-//        rightKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//        rightKey = MultiVersion.registerKey(new KeyMapping(
 //                "Increase Right Score",
-//                InputUtil.Type.KEYSYM,
+//                InputConstants.Type.KEYSYM,
 //                GLFW.GLFW_KEY_RIGHT,
 //                "Hitreg"
 //        ));
-//        upKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//        upKey = MultiVersion.registerKey(new KeyMapping(
 //                "Send Score to Chat",
-//                InputUtil.Type.KEYSYM,
+//                InputConstants.Type.KEYSYM,
 //                GLFW.GLFW_KEY_UP,
 //                "Hitreg"
 //        ));
-//        downKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+//        downKey = MultiVersion.registerKey(new KeyMapping(
 //                "Reset Last Score",
-//                InputUtil.Type.KEYSYM,
+//                InputConstants.Type.KEYSYM,
 //                GLFW.GLFW_KEY_DOWN,
 //                "Hitreg"
 //        ));
 
+        //version 1.21.9 - 1.21.10
+//        KeyMapping.Category category = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("betterhitreg", "hitreg"));
+
+        //version 1.21.11+
+        KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("betterhitreg", "hitreg"));
+
         //version 1.21.9+
-        KeyBinding.Category category = KeyBinding.Category.create(Identifier.of("betterhitreg", "hitreg"));
-        uiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        uiKey = MultiVersion.registerKey(new KeyMapping(
                 "Open Hitreg Menu",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_H, category
         ));
-        handKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        handKey = MultiVersion.registerKey(new KeyMapping(
                 "Switch Hand",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UNKNOWN, category
         ));
-        leftKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        leftKey = MultiVersion.registerKey(new KeyMapping(
                 "Increase Left Score",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_LEFT,
                 category
         ));
-        rightKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        rightKey = MultiVersion.registerKey(new KeyMapping(
                 "Increase Right Score",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_RIGHT,
                 category
         ));
-        upKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        upKey = MultiVersion.registerKey(new KeyMapping(
                 "Send Score to Chat",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_UP,
                 category
         ));
-        downKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        downKey = MultiVersion.registerKey(new KeyMapping(
                 "Reset Score",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_DOWN,
                 category
         ));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (uiKey.wasPressed() && client.currentScreen == null) client.setScreen(new UIScreen());
+            if (uiKey.consumeClick() && !MultiVersion.isScreenOpen()) MultiVersion.openScreen(new UIScreen());
 
-            if (handKey.wasPressed() && handSwitchCooldown == 0 && client.currentScreen == null) {
-                client.options.getMainArm().setValue(client.options.getMainArm().getValue().getOpposite());
-                client.player.setMainArm(client.options.getMainArm().getValue());
-                client.options.sendClientSettings();
+            if (handKey.consumeClick() && handSwitchCooldown == 0 && !MultiVersion.isScreenOpen()) {
+                client.options.mainHand().set(client.options.mainHand().get().getOpposite());
+                client.player.setMainArm(client.options.mainHand().get());
+                client.options.broadcastOptions();
                 handSwitchCooldown = 5;
             }
 
-            if (scoreCooldown == 0 && client.currentScreen == null) {
-                if (leftKey.wasPressed()) leftScore++;
-                if (rightKey.wasPressed()) rightScore++;
-                if (upKey.wasPressed() && client.getNetworkHandler() != null) client.getNetworkHandler().sendChatMessage(leftScore + " - " + rightScore);
-                if (downKey.wasPressed()) {
+            if (scoreCooldown == 0 && !MultiVersion.isScreenOpen()) {
+                if (leftKey.consumeClick()) leftScore++;
+                if (rightKey.consumeClick()) rightScore++;
+                if (upKey.consumeClick() && client.getConnection() != null) client.getConnection().sendChat(leftScore + " - " + rightScore);
+                if (downKey.consumeClick()) {
                     leftScore = 0;
                     rightScore = 0;
                 }

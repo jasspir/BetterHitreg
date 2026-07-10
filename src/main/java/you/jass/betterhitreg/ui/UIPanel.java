@@ -25,7 +25,7 @@ public class UIPanel implements UIElement {
         if (gradient) UIUtils.drawGradientRectangle(renderer, x, y, width, height, bgStart, baseBg);
         else UIUtils.drawRectangle(renderer, x, y, width, height, baseBg);
         if (gradient) UIUtils.drawGradientBorder(renderer, x, y, width, height, borderStart, baseBorder);
-        else UIUtils.drawBorder(renderer, x, y, width, height, baseBorder);
+        else UIUtils.renderOutline(renderer, x, y, width, height, baseBorder);
     }
 
     @Override public boolean mouseClicked(double mx, double my, int button) { return false; }

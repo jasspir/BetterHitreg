@@ -1,9 +1,9 @@
 package you.jass.betterhitreg.utility;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import you.jass.betterhitreg.hitreg.Hitreg;
 import you.jass.betterhitreg.settings.Toggle;
 
@@ -23,9 +23,9 @@ public class PacketProcessor {
     public static long dealtDamageTimestamp;
     public static long tookDamageTimestamp;
 
-    public static boolean processDamage(EntityDamageS2CPacket packet) {
+    public static boolean processDamage(ClientboundDamageEventPacket packet) {
         //on network thread?
-        if (!MinecraftClient.getInstance().isOnThread()) {
+        if (!Minecraft.getInstance().isSameThread()) {
             if (lastTarget == packet.entityId()) {
                 dealtDamageTimestamp = System.currentTimeMillis();
             } else if (Hitreg.playerId == packet.entityId()) tookDamageTimestamp = System.currentTimeMillis();
@@ -63,27 +63,27 @@ public class PacketProcessor {
         return true;
     }
 
-    public static boolean processAnimation(EntityAnimationS2CPacket packet) {
-        if (lastTarget != getAnimationId(packet)) return true;
+    public static boolean processAnimation(ClientboundAnimatePacket packet) {
+        if (lastTarget != getAction(packet)) return true;
         boolean withinFight = Hitreg.withinFight;
 
         //swing hand
-        if (packet.getAnimationId() == 0 || packet.getAnimationId() == 3) Hitreg.theirSwings++;
+        if (packet.getAction() == 0 || packet.getAction() == 3) Hitreg.theirSwings++;
 
         //crit particle
-        if (packet.getAnimationId() == 4) {
+        if (packet.getAction() == 4) {
             if (Hitreg.lastHitHandled && withinFight) return false;
         }
 
         //enchanted particle
-        else if (packet.getAnimationId() == 5) {
+        else if (packet.getAction() == 5) {
             if ((Toggle.PARTICLES_EVERY_HIT.toggled() || Hitreg.lastHitHandled) && withinFight) return false;
         }
 
         return true;
     }
 
-    public static boolean processSound(PlaySoundS2CPacket packet) {
+    public static boolean processSound(ClientboundSoundPacket packet) {
         Sound sound = new Sound(packet);
         sound.register();
 
@@ -102,7 +102,7 @@ public class PacketProcessor {
     private static final Queue<Sound> delayedSounds = new LinkedList<>();
 
     private static void processDelayedSounds(boolean fromYou) {
-        if (client.world == null || client.player == null) return;
+        if (client.level == null || client.player == null) return;
         Sound sound;
         while ((sound = delayedSounds.poll()) != null) {
             if (sound.skip) continue;

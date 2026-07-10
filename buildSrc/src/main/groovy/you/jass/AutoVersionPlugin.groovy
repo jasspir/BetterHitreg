@@ -92,6 +92,9 @@ class AutoVersionPlugin implements Plugin<Project> {
                     }
                 }
 
+                //unobfuscated versions have no yarn, drop any stale value carried over from an older target
+                if (needFabricMeta && !resolvedMappings) merged.remove('yarn_mappings')
+
                 if (ext.loaderVersion) {
                     if (ext.loaderVersion.toString().toLowerCase() == 'auto') {
                         if (resolvedLoader) merged.setProperty('loader_version', resolvedLoader)
@@ -165,8 +168,14 @@ class AutoVersionPlugin implements Plugin<Project> {
         def url = "https://meta.fabricmc.net/v1/versions/loader/${enc}"
         def txt = new URL(url).getText(requestProperties: ['User-Agent': 'Gradle/AutoVersionPlugin'])
         def arr = new JsonSlurper().parseText(txt)
+        if (arr && arr.size() > 0) return [ loader: arr[0].loader.version, mappings: arr[0].mappings.version ]
+
+        //unobfuscated versions (26.1+) have no yarn mappings, the v1 endpoint is empty for them so only resolve the loader
+        url = "https://meta.fabricmc.net/v2/versions/loader/${enc}"
+        txt = new URL(url).getText(requestProperties: ['User-Agent': 'Gradle/AutoVersionPlugin'])
+        arr = new JsonSlurper().parseText(txt)
         if (!arr || arr.size() == 0) throw new org.gradle.api.GradleException("no fabric loader data for ${mcVersion}")
-        return [ loader: arr[0].loader.version, mappings: arr[0].mappings.version ]
+        return [ loader: arr[0].loader.version, mappings: null ]
     }
 
     static String fetchFabricApiFor(String mcVersion) {

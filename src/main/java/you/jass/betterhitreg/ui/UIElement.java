@@ -1,7 +1,7 @@
 package you.jass.betterhitreg.ui;
 
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
 import you.jass.betterhitreg.hitreg.Hitreg;
 
 public interface UIElement {
@@ -10,10 +10,6 @@ public interface UIElement {
     boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY);
     boolean mouseReleased(double mouseX, double mouseY, int button);
     default void playSound() {
-        //version 1.19.4 - 1.21.10
-        //Hitreg.client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1));
-
-        //version 1.21.11
-        Hitreg.client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK, 1));
+        Hitreg.client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
     }
 }

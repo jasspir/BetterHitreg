@@ -1,17 +1,20 @@
 package you.jass.betterhitreg.ui;
 
 //version 1.19.4
-//import net.minecraft.client.util.math.MatrixStack;
+//import com.mojang.blaze3d.vertex.PoseStack;
 
-//version 1.20+
-import net.minecraft.client.gui.DrawContext;
+//version 1.20 - 1.21.11
+import net.minecraft.client.gui.GuiGraphics;
+
+//version 26.1+
+//import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 //version 1.21.9+
-import net.minecraft.client.gui.Click;
+import net.minecraft.client.input.MouseButtonEvent;
 
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import you.jass.betterhitreg.hitreg.Hitreg;
 import you.jass.betterhitreg.settings.Commands;
 import you.jass.betterhitreg.settings.Settings;
@@ -29,7 +32,7 @@ public class UIScreen extends Screen {
     private final List<UIElement> widgets = new ArrayList<>();
 
     public UIScreen() {
-        super(Text.of("Custom Settings"));
+        super(Component.literal("Custom Settings"));
     }
 
     @Override
@@ -74,14 +77,14 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter,
                 panelHeightCenter - halfPanelHeight + 10,
-                textRenderer, "BetterHitreg v1.0.6",
+                font, "BetterHitreg v1.0.6",
                 header, true, true
         ));
 
         widgets.add(new UILabel(
                 panelWidthCenter,
                 panelHeightCenter + halfPanelHeight - 10,
-                textRenderer, "Made by Jass • Modrinth.com/mod/betterhitreg • " + MultiVersion.getVersion(),
+                font, "Made by Jass • Modrinth.com/mod/betterhitreg • " + MultiVersion.getVersion(),
                 footer, true, true
         ));
 
@@ -91,7 +94,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 sliderWidth, 0, 300, Settings.getHitreg(), sliderGap, 1,
                 "Hitreg", "", "ᴍs",
-                textRenderer, slider, false, false,
+                font, slider, false, false,
                 v -> {},
                 v -> {
                     Settings.setInt("hitreg", v);
@@ -103,7 +106,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start + 53,
                 panelHeightCenter - rowStart + verticalGap * 2,
                 10, 92,
-                textRenderer, "Enable Hitreg",
+                font, "Enable Hitreg",
                 checkbox, true,
                 Toggle.TOGGLE.toggled(),
                 checked -> Toggle.TOGGLE.toggle()
@@ -112,7 +115,7 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 3,
-                textRenderer, "Utility",
+                font, "Utility",
                 category, false, false
         ));
 
@@ -120,7 +123,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 4,
                 10, horizontalGap,
-                textRenderer, "Safe Regs Only",
+                font, "Safe Regs Only",
                 checkbox, true,
                 Toggle.SAFE_REGS_ONLY.toggled(),
                 checked -> Toggle.SAFE_REGS_ONLY.toggle()
@@ -130,7 +133,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 5,
                 10, horizontalGap,
-                textRenderer, "Ignore Shield Holders",
+                font, "Ignore Shield Holders",
                 checkbox, true,
                 Toggle.IGNORE_SHIELD_HOLDERS.toggled(),
                 checked -> Toggle.IGNORE_SHIELD_HOLDERS.toggle()
@@ -140,7 +143,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 6,
                 10, horizontalGap,
-                textRenderer, "Alert Delays (" + Hitreg.last100Regs.getAverageDelay() + "ms)",
+                font, "Alert Delays (" + Hitreg.last100Regs.getAverageDelay() + "ms)",
                 checkbox, true,
                 Toggle.ALERT_DELAYS.toggled(),
                 checked -> Toggle.ALERT_DELAYS.toggle()
@@ -150,7 +153,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 7,
                 10, horizontalGap,
-                textRenderer, "Alert Ghosts (" + Hitreg.last100Regs.getGhostRatio() + "%)",
+                font, "Alert Ghosts (" + Hitreg.last100Regs.getGhostRatio() + "%)",
                 checkbox, true,
                 Toggle.ALERT_GHOSTS.toggled(),
                 checked -> Toggle.ALERT_GHOSTS.toggle()
@@ -160,7 +163,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 8,
                 10, horizontalGap,
-                textRenderer, "Alert Misplaces (" + Hitreg.last100Regs.getInconsistencyRatio() + "%)",
+                font, "Alert Misplaces (" + Hitreg.last100Regs.getInconsistencyRatio() + "%)",
                 checkbox, true,
                 Toggle.ALERT_INCONSISTENCIES.toggled(),
                 checked -> Toggle.ALERT_INCONSISTENCIES.toggle()
@@ -170,7 +173,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 9,
                 10, horizontalGap,
-                textRenderer, "Alert Fight Statistics",
+                font, "Alert Fight Statistics",
                 checkbox, true,
                 Toggle.ALERT_FIGHTS.toggled(),
                 checked -> Toggle.ALERT_FIGHTS.toggle()
@@ -179,7 +182,7 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 10,
-                textRenderer, "Audio",
+                font, "Audio",
                 category, false, false
         ));
 
@@ -187,7 +190,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 11,
                 10, horizontalGap,
-                textRenderer, "Mute Other Fights",
+                font, "Mute Other Fights",
                 checkbox, true,
                 Toggle.SILENCE_OTHER_FIGHTS.toggled(),
                 checked -> Toggle.SILENCE_OTHER_FIGHTS.toggle()
@@ -197,7 +200,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 12,
                 10, horizontalGap,
-                textRenderer, "1.8 Hit Sounds",
+                font, "1.8 Hit Sounds",
                 checkbox, true,
                 Toggle.LEGACY_SOUNDS.toggled(),
                 checked -> Toggle.LEGACY_SOUNDS.toggle()
@@ -207,7 +210,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 13,
                 10, horizontalGap,
-                textRenderer, "Mute Non-hit Sounds",
+                font, "Mute Non-hit Sounds",
                 checkbox, true,
                 Toggle.SILENCE_NON_HITS.toggled(),
                 checked -> Toggle.SILENCE_NON_HITS.toggle()
@@ -217,7 +220,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 14,
                 10, horizontalGap,
-                textRenderer, "Mute Your Hits",
+                font, "Mute Your Hits",
                 checkbox, true,
                 Toggle.SILENCE_SELF.toggled(),
                 checked -> Toggle.SILENCE_SELF.toggle()
@@ -227,7 +230,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 15,
                 10, horizontalGap,
-                textRenderer, "Mute Their Hits",
+                font, "Mute Their Hits",
                 checkbox, true,
                 Toggle.SILENCE_THEM.toggled(),
                 checked -> Toggle.SILENCE_THEM.toggle()
@@ -239,7 +242,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 sliderWidth - 55, 0, 100, Settings.getFloat("muffle_amount") * 100, sliderGap - 4, 5,
                 "Hit Muffling", "", "%",
-                textRenderer, slider, true, true,
+                font, slider, true, true,
                 v -> {},
                 Commands::setMuffle
         ));
@@ -250,7 +253,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 sliderWidth - 72, 0, 100, Settings.getFloat("sharpen_amount") * 100, sliderGap - 4, 5,
                 "Hit Sharpening", "", "%",
-                textRenderer, slider, true, true,
+                font, slider, true, true,
                 v -> {},
                 Commands::setSharpen
         ));
@@ -261,7 +264,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 sliderWidth - 49, 9, 25, Settings.getInt("metronome"), sliderGap - 7, 1,
                 "Metronome", "", "t",
-                textRenderer, slider, true, true,
+                font, slider, true, true,
                 v -> {},
                 v -> {
                     if (v < 10) {
@@ -277,7 +280,7 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 3,
-                textRenderer, "Render",
+                font, "Render",
                 category, false, false
         ));
 
@@ -285,7 +288,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 4,
                 10, horizontalGap,
-                textRenderer, "Hide Other Fights",
+                font, "Hide Other Fights",
                 checkbox, true,
                 Toggle.HIDE_OTHER_FIGHTS.toggled(),
                 checked -> Toggle.HIDE_OTHER_FIGHTS.toggle()
@@ -295,7 +298,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 5,
                 10, horizontalGap,
-                textRenderer, "Hide Animations",
+                font, "Hide Animations",
                 checkbox, true,
                 Toggle.HIDE_ANIMATIONS.toggled(),
                 checked -> Toggle.HIDE_ANIMATIONS.toggle()
@@ -305,7 +308,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 6,
                 10, horizontalGap,
-                textRenderer, "Hide Armor",
+                font, "Hide Armor",
                 checkbox, true,
                 Toggle.HIDE_ARMOR.toggled(),
                 checked -> Toggle.HIDE_ARMOR.toggle()
@@ -315,7 +318,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 7,
                 10, horizontalGap,
-                textRenderer, "Hide All Particles",
+                font, "Hide All Particles",
                 checkbox, true,
                 Toggle.HIDE_ALL_PARTICLES.toggled(),
                 checked -> Toggle.HIDE_ALL_PARTICLES.toggle()
@@ -325,7 +328,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 8,
                 10, horizontalGap,
-                textRenderer, "Hide Other Particles",
+                font, "Hide Other Particles",
                 checkbox, true,
                 Toggle.HIDE_OTHER_PARTICLES.toggled(),
                 checked -> Toggle.HIDE_OTHER_PARTICLES.toggle()
@@ -335,7 +338,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 9,
                 10, horizontalGap,
-                textRenderer, "Always Hit Particles",
+                font, "Always Hit Particles",
                 checkbox, true,
                 Toggle.PARTICLES_EVERY_HIT.toggled(),
                 checked -> Toggle.PARTICLES_EVERY_HIT.toggle()
@@ -345,7 +348,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 10,
                 10, horizontalGap,
-                textRenderer, "Show Target Hitbox",
+                font, "Show Target Hitbox",
                 checkbox, true,
                 Toggle.RENDER_HITBOX.toggled(),
                 checked -> Toggle.RENDER_HITBOX.toggle()
@@ -355,7 +358,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 11,
                 10, horizontalGap,
-                textRenderer, "Show Target Cross",
+                font, "Show Target Cross",
                 checkbox, true,
                 Toggle.RENDER_CROSS.toggled(),
                 checked -> Toggle.RENDER_CROSS.toggle()
@@ -365,7 +368,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 12,
                 10, horizontalGap,
-                textRenderer, "Show Server Hitbox",
+                font, "Show Server Hitbox",
                 checkbox, true,
                 Toggle.RENDER_SERVER_HITBOX.toggled(),
                 checked -> Toggle.RENDER_SERVER_HITBOX.toggle()
@@ -375,7 +378,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 13,
                 10, horizontalGap,
-                textRenderer, "Show Your Hit Range",
+                font, "Show Your Hit Range",
                 checkbox, true,
                 Toggle.RENDER_YOUR_REACH.toggled(),
                 checked -> Toggle.RENDER_YOUR_REACH.toggle()
@@ -385,7 +388,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 14,
                 10, horizontalGap,
-                textRenderer, "Show Their Hit Range",
+                font, "Show Their Hit Range",
                 checkbox, true,
                 Toggle.RENDER_THEIR_REACH.toggled(),
                 checked -> Toggle.RENDER_THEIR_REACH.toggle()
@@ -395,7 +398,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 15,
                 10, horizontalGap,
-                textRenderer, "Show Your Jump Range",
+                font, "Show Your Jump Range",
                 checkbox, true,
                 Toggle.RENDER_YOUR_JUMP.toggled(),
                 checked -> Toggle.RENDER_YOUR_JUMP.toggle()
@@ -405,7 +408,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 16,
                 10, horizontalGap,
-                textRenderer, "Show Their Jump Range",
+                font, "Show Their Jump Range",
                 checkbox, true,
                 Toggle.RENDER_THEIR_JUMP.toggled(),
                 checked -> Toggle.RENDER_THEIR_JUMP.toggle()
@@ -415,7 +418,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 17,
                 10, horizontalGap,
-                textRenderer, "Perfect Hit Color",
+                font, "Perfect Hit Color",
                 checkbox, true,
                 Toggle.PERFECT_HIT_COLOR.toggled(),
                 checked -> Toggle.PERFECT_HIT_COLOR.toggle()
@@ -425,7 +428,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 18,
                 10, horizontalGap,
-                textRenderer, "Jump Reset Color",
+                font, "Jump Reset Color",
                 checkbox, true,
                 Toggle.JUMP_RESET_COLOR.toggled(),
                 checked -> Toggle.JUMP_RESET_COLOR.toggle()
@@ -434,33 +437,46 @@ public class UIScreen extends Screen {
 
     //version 1.19.4
 //    @Override
-//    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float delta) {
+//    public void render(PoseStack matrixStack, int mouseX, int mouseY, float delta) {
 //        for (UIElement w : widgets) {
 //            w.render(matrixStack, mouseX, mouseY);
 //        }
 //        super.render(matrixStack, mouseX, mouseY, delta);
 //    }
 
-    //version 1.20+
+    //version 1.20 - 1.21.11
     @Override
-    public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics ctx, int mouseX, int mouseY, float delta) {
         for (UIElement w : widgets) {
             w.render(ctx, mouseX, mouseY);
         }
         super.render(ctx, mouseX, mouseY, delta);
     }
 
+    //version 26.1+
+//    @Override
+//    public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+//        super.extractRenderState(ctx, mouseX, mouseY, delta);
+//        for (UIElement w : widgets) {
+//            w.render(ctx, mouseX, mouseY);
+//        }
+//    }
+
     //version 1.19.4
 //    @Override
-//    public void renderBackground(MatrixStack matrixStack) {}
+//    public void renderBackground(PoseStack matrixStack) {}
 
     //version 1.20 - 1.20.1
 //    @Override
-//    public void renderBackground(DrawContext context) {}
+//    public void renderBackground(GuiGraphics context) {}
 
-    //version 1.20.2+
+    //version 1.20.2 - 1.21.11
     @Override
-    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {}
+    public void renderBackground(GuiGraphics ctx, int mouseX, int mouseY, float delta) {}
+
+    //version 26.1+
+//    @Override
+//    public void extractBackground(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {}
 
     //version 1.21.8-
 //    @Override
@@ -491,7 +507,7 @@ public class UIScreen extends Screen {
 
     //version 1.21.9+
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         for (UIElement w : widgets) {
             if (w.mouseClicked(click.x(), click.y(), click.button())) return true;
         }
@@ -500,7 +516,7 @@ public class UIScreen extends Screen {
 
     //version 1.21.9+
     @Override
-    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+    public boolean mouseDragged(MouseButtonEvent click, double offsetX, double offsetY) {
         for (UIElement w : widgets) {
             if (w.mouseDragged(click.x(), click.y(), click.button(), offsetX, offsetY)) return true;
         }
@@ -509,7 +525,7 @@ public class UIScreen extends Screen {
 
     //version 1.21.9+
     @Override
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         for (UIElement w : widgets) {
             if (w.mouseReleased(click.x(), click.y(), click.button())) return true;
         }

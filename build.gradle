@@ -2,29 +2,37 @@ import you.jass.MultiVersionPlugin
 import you.jass.AutoVersionPlugin
 
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT' apply false
+    id 'net.fabricmc.fabric-loom-remap' version '1.17-SNAPSHOT' apply false
     id 'maven-publish'
     id 'idea'
 }
 
+//26.1+ ships unobfuscated with mojang's official names, it uses the new loom plugin which doesn't remap
+//1.21.11 and older are obfuscated and use the remapping loom plugin with mojang mappings
+def mcIsAtLeast261 = {
+    def a = project.minecraft_version.toString().split(/\./).collect { it.isInteger() ? it.toInteger() : 0 }
+    return a[0] >= 26
+}()
+
+if (mcIsAtLeast261) apply plugin: 'net.fabricmc.fabric-loom'
+else apply plugin: 'net.fabricmc.fabric-loom-remap'
+
 apply plugin: MultiVersionPlugin
 apply plugin: AutoVersionPlugin
 
-//the designated gradle version is 9.3.1, you can set it in gradle/wrapper/gradle-wrapper.properties
-//distributionUrl=https\://services.gradle.org/distributions/gradle-9.3.1-bin.zip
+//the designated gradle version is 9.6.1, you can set it in gradle/wrapper/gradle-wrapper.properties
+//distributionUrl=https\://services.gradle.org/distributions/gradle-9.6.1-bin.zip
 //when the project is done building successfully, you can find the jar in build/libs
 
-//1.20.5+ uses java 21, 1.18+ uses java 17, update this in mixins.json too
-//you may need to install the right java version for your IDE, you can do it at the top right gear in IntelliJ
-def targetJavaVersion = 21
-
-//set the minecraft & java versions, then run Tasks/build/autoVersion, it should be in the elephant on the right sidebar in IntelliJ
+//set the minecraft version, then run Tasks/build/autoVersion, it should be in the elephant on the right sidebar in IntelliJ
 //after it finishes, run Tasks/build/build, this should build the desired version
+//(when switching versions the first build may fail because gradle.properties updates mid-build, just run it again)
 autoversion {
     modVersion = '1.0.6'
     mavenGroup = 'you.jass'
     archivesBaseName = 'BetterHitreg'
-    minecraftVersion = '1.21.11'
+    minecraftVersion = '26.2'
     yarnMappings = 'auto'
     loaderVersion = 'auto'
     fabricVersion = 'auto'
@@ -40,18 +48,42 @@ base {
 repositories {
 }
 
+//compares dotted versions numerically, so 26.1 > 1.21.11
+def isAtLeast = { String v ->
+    def a = project.minecraft_version.toString().split(/\./).collect { it.isInteger() ? it.toInteger() : 0 }
+    def b = v.split(/\./).collect { it.toInteger() }
+    for (int i = 0; i < Math.max(a.size(), b.size()); i++) {
+        int ai = i < a.size() ? a[i] : 0
+        int bi = i < b.size() ? b[i] : 0
+        if (ai != bi) return ai > bi
+    }
+    return true
+}
+
+def isUnobfuscated = mcIsAtLeast261
+
+//26.1+ uses java 25, 1.20.5+ uses java 21, older versions use java 17
+def targetJavaVersion = isUnobfuscated ? 25 : (isAtLeast('1.20.5') ? 21 : 17)
+def mixinJavaLevel = "JAVA_${targetJavaVersion}"
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    if (isUnobfuscated) {
+        implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    } else {
+        mappings loom.officialMojangMappings()
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    }
 }
 
 processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version
+    inputs.property "mixin_java_level", mixinJavaLevel
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
@@ -59,13 +91,15 @@ processResources {
                 "minecraft_version": project.minecraft_version,
                 "loader_version": project.loader_version
     }
+
+    filesMatching("betterhitreg.mixins.json") {
+        expand "mixin_java_level": mixinJavaLevel
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release.set(targetJavaVersion)
-    }
+    it.options.release.set(targetJavaVersion)
 }
 
 java {

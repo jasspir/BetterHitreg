@@ -1,9 +1,9 @@
 package you.jass.betterhitreg.hitreg;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.Vec3;
 import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.settings.Toggle;
 import you.jass.betterhitreg.utility.HitTracker;
@@ -102,10 +102,10 @@ public class Hit {
         if (target == null) return;
         updateSettings();
 
-        if (shouldAnimate) target.onDamaged(new OnlyAnimate(target.getDamageSources().generic()));
+        if (shouldAnimate) target.handleDamageEvent(new OnlyAnimate(target.damageSources().generic()));
 
         if (shouldMakeSound) {
-            Vec3d location = getLerpedPosition(target);
+            Vec3 location = getLerpedPosition(target);
 
             if (shouldSoundBeLegacy) {
                 if (!tooEarlyForDamage) HitType.HALF_PICK.playSounds(location);

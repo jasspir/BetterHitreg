@@ -1,18 +1,18 @@
 package you.jass.betterhitreg.ui;
 
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.Font;
 
 import java.awt.*;
 
 public class UILabel implements UIElement {
     public final int x, y;
-    public final TextRenderer textRenderer;
+    public final Font textRenderer;
     public final String text;
     public final boolean centered;
     public final UITheme theme;
     public final boolean gradient;
 
-    public UILabel(int x, int y, TextRenderer textRenderer, String text, UITheme theme, boolean gradient, boolean centered) {
+    public UILabel(int x, int y, Font textRenderer, String text, UITheme theme, boolean gradient, boolean centered) {
         this.x = x;
         this.y = y;
         this.textRenderer = textRenderer;

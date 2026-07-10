@@ -1,6 +1,6 @@
 package you.jass.betterhitreg.mixin;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +13,7 @@ import you.jass.betterhitreg.utility.Render;
 @Mixin(Entity.class)
 public abstract class GlowMixin {
     @Shadow private int id;
-    @Inject(method = "getTeamColorValue", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getTeamColor", at = @At("RETURN"), cancellable = true)
     public void glow(CallbackInfoReturnable<Integer> cir) {
         if (!Hitreg.withinFight || id != Hitreg.target.getId() || Toggle.RENDER_HITBOX.toggled() || Toggle.RENDER_SERVER_HITBOX.toggled()) return;
 
@@ -22,7 +22,7 @@ public abstract class GlowMixin {
         else if (Toggle.JUMP_RESET_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastJumpReset <= 500) cir.setReturnValue((Render.JUMP_RESET_GLOW & 0xFF00FF00) | ((Render.JUMP_RESET_GLOW & 0xFF) << 16) | ((Render.JUMP_RESET_GLOW >> 16) & 0xFF));
     }
 
-    @Inject(method = "isGlowing", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "isCurrentlyGlowing", at = @At("RETURN"), cancellable = true)
     public void isGlow(CallbackInfoReturnable<Boolean> cir) {
         if (!Hitreg.withinFight || id != Hitreg.target.getId() || Toggle.RENDER_HITBOX.toggled() || Toggle.RENDER_SERVER_HITBOX.toggled()) return;
         if (Toggle.PERFECT_HIT_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastPerfectHit <= 500) cir.setReturnValue(true);
