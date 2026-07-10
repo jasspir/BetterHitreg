@@ -15,7 +15,7 @@ public abstract class NetworkMixin {
     @ModifyArg(method = "onEntityDamage(Lnet/minecraft/network/packet/s2c/play/EntityDamageS2CPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;onDamaged(Lnet/minecraft/entity/damage/DamageSource;)V"))
     private DamageSource onEntityDamage(DamageSource damageSource) {
         if (Toggle.HIDE_ANIMATIONS.toggled()) return new DontAnimate(damageSource);
-        else if (damageSource != null && damageSource.getAttacker() != null && client.player != null && client.player.getId() == damageSource.getAttacker().getId() && isToggled() && withinFight && System.currentTimeMillis() - lastAttack <= 1000) return new DontAnimate(damageSource);
+        else if (damageSource != null && damageSource.getAttacker() != null && client.player != null && client.player.getId() == damageSource.getAttacker().getId() && lastHitHandled && withinFight && System.currentTimeMillis() - lastAttack <= 1000) return new DontAnimate(damageSource);
         return damageSource;
     }
 }

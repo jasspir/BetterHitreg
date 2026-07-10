@@ -7,6 +7,7 @@ import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
+import net.minecraft.registry.tag.ItemTags;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,16 +36,17 @@ public abstract class AttackMixin {
         hit.cooldown = client.player.getAttackCooldownProgress(0.5f);
         hit.tooEarlyForDamage = hitEarly;
         hit.tooEarlyForSpecial = hit.cooldown <= 0.9f;
-        hit.hadShield = targetHasShield;
-        hit.wasBlocked = targetIsBlocking;
+        hit.hadShield = Hitreg.target.isHolding(Items.SHIELD);
+        hit.wasBlocked = Hitreg.target.isBlocking();
         hit.wasSprinting = client.player.isSprinting();
-        hit.wasFalling = client.player.getVelocity().getY() < -0.08;
+        hit.wasFalling = client.player.fallDistance > 0;
         hit.wasOnGround = client.player.isOnGround();
         hit.wasClimbing = client.player.isClimbing();
         hit.wasTouchingWater = client.player.isTouchingWater();
         hit.wasInVehicle = client.player.hasVehicle();
         hit.wasBlind = client.player.hasStatusEffect(StatusEffects.BLINDNESS);
-        hit.wasHoldingSword = client.player.getMainHandStack().getItem().getName().getString().toLowerCase().contains("sword");
+        hit.wasHoldingSword = client.player.getMainHandStack().isIn(ItemTags.SWORDS);
+        hit.wasMovingFast = MultiVersion.isMovingFast();
         hit.swordHadSharpness = MultiVersion.hasSharpness();
         hit.sprintWasReset = sprintIsReset;
         hit.wasNewTarget = lastTarget != target.getId();
@@ -57,8 +59,6 @@ public abstract class AttackMixin {
             fighting = true;
             hitByAnother = hit.wasHitByAnother;
             newTarget = hit.wasNewTarget;
-            targetHasShield = Hitreg.target.isHolding(Items.SHIELD);
-            targetIsBlocking = targetHasShield && Hitreg.target.isUsingItem();
             lastAttackLocation = MultiVersion.getBasePosition(client.player);
             lastAttack = System.currentTimeMillis();
             lastTarget = target.getId();

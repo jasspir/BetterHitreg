@@ -35,8 +35,10 @@ public class Hitreg {
     public static long lastAnimation;
     public static boolean alreadyAnimated;
     public static boolean alreadyKnockedBack;
-    public static boolean wasMovingForward;
+    public static boolean wasSprinting;
     public static boolean sprintIsReset = true;
+    public static boolean lastHitHandled;
+    public static boolean lastSwingHandled;
     public static boolean fighting = false;
     public static boolean wasGhosted;
     public static boolean newTarget = true;
@@ -101,9 +103,10 @@ public class Hitreg {
         updateFightState();
         updateGround();
 
-        boolean movingForward = client.options.forwardKey.isPressed();
-        if (movingForward && !wasMovingForward) sprintIsReset = true;
-        wasMovingForward = movingForward;
+        //the server only re-learns your sprint when the client restarts sprinting across ticks (W-tap, shift release, etc.)
+        boolean sprinting = client.player.isSprinting();
+        if (sprinting && !wasSprinting) sprintIsReset = true;
+        wasSprinting = sprinting;
 
         boolean swinging = client.options.attackKey.isPressed();
         if (swinging && !wasSwinging) yourSwings++;
@@ -257,7 +260,8 @@ public class Hitreg {
     public static void updateFightState() {
         bothAlive = client.player != null && target != null && client.player.isAlive() && target.isAlive() && !client.player.isSpectator() && !target.isSpectator();
         targetHasShield = target != null && Hitreg.target.isHolding(Items.SHIELD);
-        targetIsBlocking = targetHasShield && Hitreg.target.isUsingItem();
+        //isUsingItem is also true while eating/drinking, isBlocking checks the shield is actually raised
+        targetIsBlocking = targetHasShield && Hitreg.target.isBlocking();
 
         if (bothAlive) {
             distance = distanceToTarget();

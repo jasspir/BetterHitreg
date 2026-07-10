@@ -29,6 +29,7 @@ public class Hit {
     public boolean hadShield;
     public boolean wasBlocked;
     public boolean wasSprinting;
+    public boolean wasMovingFast;
     public boolean wasFalling;
     public boolean wasOnGround;
     public boolean wasClimbing;
@@ -76,7 +77,7 @@ public class Hit {
     public void load() {
         shouldKnockback = !tooEarlyForSpecial && wasSprinting && sprintWasReset;
         shouldCrit = !tooEarlyForSpecial && !shouldKnockback && wasFalling && !wasOnGround && !wasClimbing && !wasTouchingWater && !wasInVehicle && !wasBlind;
-        shouldSweep = !tooEarlyForSpecial && wasHoldingSword && wasOnGround && (!wasSprinting);
+        shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast;
         shouldPick = !shouldKnockback && !shouldCrit && !shouldSweep;
         shouldFullPick = !tooEarlyForSpecial && shouldPick;
         shouldHalfPick = !shouldFullPick && shouldPick;
@@ -85,8 +86,16 @@ public class Hit {
         if (type == null) return;
         expectedSound = type.getMainSound();
 
-        if (!tooEarlyForDamage) HitTracker.add(this);
-        if (Hitreg.isToggled()) Scheduler.schedule(Settings.getHitreg(), this::run);
+        //decide once at hit time whether the mod replaces the server's feedback, the target's blocking state may change before the server's packets arrive
+        boolean handled = Hitreg.isToggled();
+        Hitreg.lastSwingHandled = handled;
+
+        if (!tooEarlyForDamage) {
+            HitTracker.add(this);
+            Hitreg.lastHitHandled = handled;
+        }
+
+        if (handled) Scheduler.schedule(Settings.getHitreg(), this::run);
     }
 
     public void run() {

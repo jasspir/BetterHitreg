@@ -11,7 +11,6 @@ import java.util.*;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.alreadyAnimated;
 import static you.jass.betterhitreg.hitreg.Hitreg.client;
-import static you.jass.betterhitreg.hitreg.Hitreg.isToggled;
 import static you.jass.betterhitreg.hitreg.Hitreg.last100Regs;
 import static you.jass.betterhitreg.hitreg.Hitreg.lastAnimation;
 import static you.jass.betterhitreg.hitreg.Hitreg.lastAttack;
@@ -38,7 +37,6 @@ public class PacketProcessor {
                 //if processing never ran on the network thread, we need to update the timestamp here
                 if (System.currentTimeMillis() - dealtDamageTimestamp > 50) dealtDamageTimestamp = System.currentTimeMillis() - 2;
 
-                boolean isToggled = isToggled();
                 boolean withinFight = Hitreg.withinFight;
                 boolean hasBeenAnimated = alreadyAnimated;
                 HitTracker.add(new Animation(dealtDamageTimestamp));
@@ -47,16 +45,17 @@ public class PacketProcessor {
                 long delay = dealtDamageTimestamp - lastAttack;
                 if (Toggle.ALERT_DELAYS.toggled() && !hasBeenAnimated && delay <= 500) message("hitreg §7was §f" + delay + "§7ms", "/hitreg alertDelays");
                 if (delay <= 500) last100Regs.addDelay((int) delay);
-                if (!isToggled && withinFight && Toggle.PARTICLES_EVERY_HIT.toggled()) playParticles("ENCHANTED_HIT", target);
+                if (!Hitreg.lastHitHandled && withinFight && Toggle.PARTICLES_EVERY_HIT.toggled()) playParticles("ENCHANTED_HIT", target);
                 processDelayedSounds(true);
             }
 
-            else if (client.player.getId() == packet.entityId()) {
+            else if (client.player != null && client.player.getId() == packet.entityId()) {
                 //if processing never ran on the network thread, we need to update the timestamp here
                 if (System.currentTimeMillis() - tookDamageTimestamp > 50) tookDamageTimestamp = System.currentTimeMillis() - 2;
 
                 lastAttacked = tookDamageTimestamp;
-                Hitreg.theirHits++;
+                //fall/environment damage shouldn't count as their hit
+                if (packet.sourceCauseId() == lastTarget) Hitreg.theirHits++;
                 processDelayedSounds(false);
             }
         }
@@ -66,7 +65,6 @@ public class PacketProcessor {
 
     public static boolean processAnimation(EntityAnimationS2CPacket packet) {
         if (lastTarget != getAnimationId(packet)) return true;
-        boolean isToggled = isToggled();
         boolean withinFight = Hitreg.withinFight;
 
         //swing hand
@@ -74,12 +72,12 @@ public class PacketProcessor {
 
         //crit particle
         if (packet.getAnimationId() == 4) {
-            if (isToggled && withinFight) return false;
+            if (Hitreg.lastHitHandled && withinFight) return false;
         }
 
         //enchanted particle
         else if (packet.getAnimationId() == 5) {
-            if ((Toggle.PARTICLES_EVERY_HIT.toggled() || isToggled) && withinFight) return false;
+            if ((Toggle.PARTICLES_EVERY_HIT.toggled() || Hitreg.lastHitHandled) && withinFight) return false;
         }
 
         return true;
@@ -91,7 +89,7 @@ public class PacketProcessor {
 
         if (sound.modern || sound.legacy) {
             boolean result = processSound(sound);
-            if (!isToggled() && !Toggle.SILENCE_SELF.toggled() && !Toggle.SILENCE_THEM.toggled() && !Toggle.SILENCE_OTHER_FIGHTS.toggled()) {
+            if (!Hitreg.lastHitHandled && !Hitreg.lastSwingHandled && !Toggle.SILENCE_SELF.toggled() && !Toggle.SILENCE_THEM.toggled() && !Toggle.SILENCE_OTHER_FIGHTS.toggled()) {
                 sound.skip = true;
                 return true;
             }
@@ -110,21 +108,21 @@ public class PacketProcessor {
             if (sound.skip) continue;
             boolean shouldPlay;
             if (!sound.wasRecent()) shouldPlay = !Toggle.SILENCE_OTHER_FIGHTS.toggled();
-            else if (fromYou) shouldPlay = !Toggle.SILENCE_SELF.toggled() && !isToggled();
+            else if (fromYou) shouldPlay = !Toggle.SILENCE_SELF.toggled() && !Hitreg.lastHitHandled;
             else shouldPlay = !Toggle.SILENCE_THEM.toggled();
             if (shouldPlay) sound.play();
         }
     }
 
     private static boolean processSound(Sound sound) {
-        boolean isToggled = isToggled();
         boolean soundWithinFight = sound.withinFight();
 
         //if the sound happened far away, then block it if were silencing other fights and skip it if were not
         if (!soundWithinFight) return !Toggle.SILENCE_OTHER_FIGHTS.toggled();
 
         //block nodamage sounds because they don't actually register hits so we don't know who they're from
-        if (isToggled && sound.sound.contains("nodamage")) return false;
+        //nodamage answers a swing rather than a registered hit, so use the swing-time decision
+        if (Hitreg.lastSwingHandled && sound.sound.contains("nodamage")) return false;
 
         //if the sound wasn't from either of you
         boolean fromYou = sound.wasFromYou();
@@ -144,7 +142,7 @@ public class PacketProcessor {
         }
 
         //block the sound based on whether you hit them or they hit you
-        if (fromYou && (isToggled || Toggle.SILENCE_SELF.toggled())) return false;
+        if (fromYou && (Hitreg.lastHitHandled || Toggle.SILENCE_SELF.toggled())) return false;
         if (fromThem && Toggle.SILENCE_THEM.toggled()) return false;
 
         //block all modern attack sounds if legacy sounds are enabled
