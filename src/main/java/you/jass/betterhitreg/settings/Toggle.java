@@ -31,7 +31,7 @@ public enum Toggle {
     PERFECT_HIT_COLOR("PerfectHitColor", "color first tick hits", false),
     JUMP_RESET_COLOR("JumpResetColor", "color jump resets", false),
     EMPTY_WORLD("EmptyWorld", "unrender world", false),
-    VOID_FLOOR("VoidFloor", "render void floor", false);
+    SOLID_FLOOR("SolidFloor", "render solid floor", false);
 
     private final String key;
     private final String label;

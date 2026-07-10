@@ -42,22 +42,22 @@ public class Render {
     public static int PERFECT_HIT_GLOW = 0xFFFFFFFF;
 
     public static void updateColors() {
-        FAR_HITBOX = getColor("hitbox_far_color", "hitbox_opacity");
-        NEAR_HITBOX = getColor("hitbox_near_color", "hitbox_opacity");
-        FAR_CROSS = getColor("cross_far_color", "cross_opacity");
-        NEAR_CROSS = getColor("cross_near_color", "cross_opacity");
-        FAR_CROSS_WITH_HITBOX = getColor("cross_far_color_with_hitbox", "cross_opacity");
-        NEAR_CROSS_WITH_HITBOX = getColor("cross_near_color_with_hitbox", "cross_opacity");
-        FAR_SERVER_HITBOX = getColor("server_hitbox_far_color", "server_hitbox_opacity");
-        NEAR_SERVER_HITBOX = getColor("server_hitbox_near_color", "server_hitbox_opacity");
-        FAR_YOUR_REACH = getColor("your_reach_far_color", "your_reach_opacity");
-        NEAR_YOUR_REACH = getColor("your_reach_near_color", "your_reach_opacity");
-        FAR_THEIR_REACH = getColor("their_reach_far_color", "their_reach_opacity");
-        NEAR_THEIR_REACH = getColor("their_reach_near_color", "their_reach_opacity");
-        FAR_THEIR_JUMP_RANGE = getColor("their_jump_far_color", "their_jump_range_opacity");
-        NEAR_YOUR_JUMP_RANGE = getColor("your_jump_near_color", "your_jump_range_opacity");
-        FAR_YOUR_JUMP_RANGE = getColor("your_jump_far_color", "your_jump_range_opacity");
-        NEAR_THEIR_JUMP_RANGE = getColor("their_jump_near_color", "their_jump_range_opacity");
+        FAR_HITBOX = getColor("hitbox_far_color", "hitbox_far_opacity");
+        NEAR_HITBOX = getColor("hitbox_near_color", "hitbox_near_opacity");
+        FAR_CROSS = getColor("cross_far_color", "cross_far_opacity");
+        NEAR_CROSS = getColor("cross_near_color", "cross_near_opacity");
+        FAR_CROSS_WITH_HITBOX = getColor("cross_far_color_with_hitbox", "cross_with_hitbox_far_opacity");
+        NEAR_CROSS_WITH_HITBOX = getColor("cross_near_color_with_hitbox", "cross_with_hitbox_near_opacity");
+        FAR_SERVER_HITBOX = getColor("server_hitbox_far_color", "server_hitbox_far_opacity");
+        NEAR_SERVER_HITBOX = getColor("server_hitbox_near_color", "server_hitbox_near_opacity");
+        FAR_YOUR_REACH = getColor("your_reach_far_color", "your_reach_far_opacity");
+        NEAR_YOUR_REACH = getColor("your_reach_near_color", "your_reach_near_opacity");
+        FAR_THEIR_REACH = getColor("their_reach_far_color", "their_reach_far_opacity");
+        NEAR_THEIR_REACH = getColor("their_reach_near_color", "their_reach_near_opacity");
+        FAR_THEIR_JUMP_RANGE = getColor("their_jump_far_color", "their_jump_far_opacity");
+        NEAR_THEIR_JUMP_RANGE = getColor("their_jump_near_color", "their_jump_near_opacity");
+        NEAR_YOUR_JUMP_RANGE = getColor("your_jump_near_color", "your_jump_near_opacity");
+        FAR_YOUR_JUMP_RANGE = getColor("your_jump_far_color", "your_jump_far_opacity");
         JUMP_RESET_GLOW = getColor("jump_reset_color", "jump_reset_opacity");
         PERFECT_HIT_GLOW = getColor("perfect_hit_color", "perfect_hit_opacity");
     }

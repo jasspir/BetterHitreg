@@ -1,6 +1,7 @@
 package you.jass.betterhitreg.settings;
 
 import net.fabricmc.loader.api.FabricLoader;
+import you.jass.betterhitreg.utility.Render;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ public class Settings {
 
         properties.putAll(defaults);
         load();
+        Render.updateColors();
     }
 
     public static int getHitreg() {

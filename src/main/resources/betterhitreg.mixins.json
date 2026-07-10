@@ -6,7 +6,7 @@
   "mixins": [
     "ArmorMixin",
     "AttackMixin",
-    "NetworkMixin",
+    "ChunkMixin",
     "DamageMixin",
     "EntityAccessor",
     "GlowMixin",

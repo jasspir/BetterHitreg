@@ -4,12 +4,12 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 
 //version 1.21.11-
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+//import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+//import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 //version 26.1+
-//import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
-//import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
 
 import static you.jass.betterhitreg.utility.MultiVersion.message;
 
@@ -40,6 +40,11 @@ public class Commands {
                     .then(argument("value", IntegerArgumentType.integer())
                             .executes(context -> setSharpen(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setSharpen(0)));
+
+            root = root.then(literal("setFloorGridSize")
+                    .then(argument("value", IntegerArgumentType.integer())
+                            .executes(context -> setFloorGridSize(IntegerArgumentType.getInteger(context, "value"))))
+                    .executes(context -> setFloorGridSize(0)));
 
             dispatcher.register(root.executes(context -> guide()));
         });
@@ -105,6 +110,12 @@ public class Commands {
 
         Settings.setFloat("sharpen_amount", sharpen / 100f);
         message("hitsound sharpening §7set to §f" + sharpen + "§7%", "/hitreg setSharpen 0");
+        return 1;
+    }
+
+    public static int setFloorGridSize(int size) {
+        Settings.setInt("floor_grid_size", size);
+        message("floor grid size §7set to §f" + size, "/hitreg setFloorGridSize 0");
         return 1;
     }
 
