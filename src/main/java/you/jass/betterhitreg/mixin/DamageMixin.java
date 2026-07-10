@@ -35,7 +35,10 @@ public abstract class DamageMixin {
 
     @ModifyVariable(method = "onDamaged(Lnet/minecraft/entity/damage/DamageSource;)V", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/LivingEntity;getHurtSound(Lnet/minecraft/entity/damage/DamageSource;)Lnet/minecraft/sound/SoundEvent;"), ordinal = 0)
     private SoundEvent onDamaged(SoundEvent original, DamageSource damageSource) {
-        return Toggle.SILENCE_THEM.toggled() ? null : original;
+        //only silence your own hurt sound, other entities aren't "their hits"
+        LivingEntity entity = (LivingEntity) (Object) this;
+        boolean isYou = Hitreg.client.player != null && Hitreg.client.player.getId() == entity.getId();
+        return Toggle.SILENCE_THEM.toggled() && isYou ? null : original;
     }
 
     @Inject(method = "onDamaged", at = @At("HEAD"), cancellable = true)

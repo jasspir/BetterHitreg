@@ -11,7 +11,6 @@ import java.util.*;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.alreadyAnimated;
 import static you.jass.betterhitreg.hitreg.Hitreg.client;
-import static you.jass.betterhitreg.hitreg.Hitreg.isToggled;
 import static you.jass.betterhitreg.hitreg.Hitreg.last100Regs;
 import static you.jass.betterhitreg.hitreg.Hitreg.lastAnimation;
 import static you.jass.betterhitreg.hitreg.Hitreg.lastAttack;
@@ -50,12 +49,13 @@ public class PacketProcessor {
                 processDelayedSounds(true);
             }
 
-            else if (client.player.getId() == packet.entityId()) {
+            else if (client.player != null && client.player.getId() == packet.entityId()) {
                 //if processing never ran on the network thread, we need to update the timestamp here
                 if (System.currentTimeMillis() - tookDamageTimestamp > 50) tookDamageTimestamp = System.currentTimeMillis() - 2;
 
                 lastAttacked = tookDamageTimestamp;
-                Hitreg.theirHits++;
+                //fall/environment damage shouldn't count as their hit
+                if (packet.sourceCauseId() == lastTarget) Hitreg.theirHits++;
                 processDelayedSounds(false);
             }
         }
@@ -89,7 +89,7 @@ public class PacketProcessor {
 
         if (sound.modern || sound.legacy) {
             boolean result = processSound(sound);
-            if (!Hitreg.lastHitHandled && !Toggle.SILENCE_SELF.toggled() && !Toggle.SILENCE_THEM.toggled() && !Toggle.SILENCE_OTHER_FIGHTS.toggled()) {
+            if (!Hitreg.lastHitHandled && !Hitreg.lastSwingHandled && !Toggle.SILENCE_SELF.toggled() && !Toggle.SILENCE_THEM.toggled() && !Toggle.SILENCE_OTHER_FIGHTS.toggled()) {
                 sound.skip = true;
                 return true;
             }
@@ -121,7 +121,8 @@ public class PacketProcessor {
         if (!soundWithinFight) return !Toggle.SILENCE_OTHER_FIGHTS.toggled();
 
         //block nodamage sounds because they don't actually register hits so we don't know who they're from
-        if (isToggled() && sound.sound.contains("nodamage")) return false;
+        //nodamage answers a swing rather than a registered hit, so use the swing-time decision
+        if (Hitreg.lastSwingHandled && sound.sound.contains("nodamage")) return false;
 
         //if the sound wasn't from either of you
         boolean fromYou = sound.wasFromYou();
