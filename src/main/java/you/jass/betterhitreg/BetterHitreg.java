@@ -188,7 +188,7 @@ public class BetterHitreg implements ModInitializer {
             if (scoreCooldown == 0 && !MultiVersion.isScreenOpen()) {
                 if (leftKey.consumeClick()) leftScore++;
                 if (rightKey.consumeClick()) rightScore++;
-                if (upKey.consumeClick() && client.getConnection() != null) client.getConnection().sendChat(leftScore + " - " + rightScore);
+                if (upKey.consumeClick() && (leftScore > 0 || rightScore > 0) && client.getConnection() != null) client.getConnection().sendChat(leftScore + "-" + rightScore);
                 if (downKey.consumeClick()) {
                     leftScore = 0;
                     rightScore = 0;
