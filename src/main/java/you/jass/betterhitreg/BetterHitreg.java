@@ -59,7 +59,7 @@ public class BetterHitreg implements ModInitializer {
             String scoreText = "Score: " + leftScore + " - " + rightScore;
 
             //version 1.19.4
-            client.textRenderer.drawWithShadow(context, scoreText, 10, 10, 0xFFFFFFFF);
+            //client.textRenderer.drawWithShadow(context, scoreText, 10, 10, 0xFFFFFFFF);
 
             //version 1.20+
             context.drawTextWithShadow(client.textRenderer, scoreText, 10, 10, 0xFFFFFFFF);
@@ -153,7 +153,7 @@ public class BetterHitreg implements ModInitializer {
             if (scoreCooldown == 0 && client.currentScreen == null) {
                 if (leftKey.wasPressed()) leftScore++;
                 if (rightKey.wasPressed()) rightScore++;
-                if (upKey.wasPressed() && client.getNetworkHandler() != null) client.getNetworkHandler().sendChatMessage(leftScore + " - " + rightScore);
+                if (upKey.wasPressed() && (leftScore > 0 || rightScore > 0) && client.getNetworkHandler() != null) client.getNetworkHandler().sendChatMessage(leftScore + "-" + rightScore);
                 if (downKey.wasPressed()) {
                     leftScore = 0;
                     rightScore = 0;
