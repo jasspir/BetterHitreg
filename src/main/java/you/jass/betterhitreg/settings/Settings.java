@@ -14,112 +14,22 @@ public class Settings {
     private static final Map<String, String> categories = new HashMap<>();
 
     static {
+        for (Setting setting : Setting.values()) {
+            categories.put(setting.key(), setting.category());
+            defaults.setProperty(setting.key(), setting.defaultValue());
+        }
+
         for (Toggle toggle : Toggle.values()) {
             categories.put(toggle.key(), "toggle");
             defaults.setProperty(toggle.key(), String.valueOf(toggle.defaultValue()));
         }
 
-        categories.put("tutorial", "toggle");
-
-        categories.put("total_fights", "tracked");
-        categories.put("fight_playtime_(seconds)", "tracked");
-
-        categories.put("hitreg", "configure");
-
-        categories.put("muffle_amount", "configure");
-        categories.put("sharpen_amount", "configure");
-        categories.put("metronome", "configure");
-
-        categories.put("cross_far_color", "render");
-        categories.put("cross_near_color", "render");
-        categories.put("cross_far_color_with_hitbox", "render");
-        categories.put("cross_near_color_with_hitbox", "render");
-        categories.put("hitbox_far_color", "render");
-        categories.put("hitbox_near_color", "render");
-        categories.put("server_hitbox_color", "render");
-        categories.put("your_reach_far_color", "render");
-        categories.put("your_reach_near_color", "render");
-        categories.put("their_reach_far_color", "render");
-        categories.put("their_reach_near_color", "render");
-        categories.put("your_jump_near_color", "render");
-        categories.put("your_jump_far_color", "render");
-        categories.put("their_jump_near_color", "render");
-        categories.put("their_jump_far_color", "render");
-        categories.put("jump_reset_color", "render");
-        categories.put("perfect_hit_color", "render");
-
-        categories.put("cross_opacity", "render");
-        categories.put("hitbox_opacity", "render");
-        categories.put("server_hitbox_opacity", "render");
-        categories.put("your_reach_opacity", "render");
-        categories.put("their_reach_opacity", "render");
-        categories.put("your_jump_range_opacity", "render");
-        categories.put("their_jump_range_opacity", "render");
-        categories.put("jump_reset_opacity", "render");
-        categories.put("perfect_hit_opacity", "render");
-
-        categories.put("background_color", "ui");
-        categories.put("background_opacity", "ui");
-        categories.put("border_color", "ui");
-        categories.put("border_opacity", "ui");
-        categories.put("text_color", "ui");
-        categories.put("text_opacity", "ui");
-        categories.put("hovered_color", "ui");
-        categories.put("hovered_opacity", "ui");
-        categories.put("highlighted_color", "ui");
-        categories.put("highlighted_opacity", "ui");
-
-        defaults.setProperty("hitreg", "0");
-        defaults.setProperty("tutorial", "true");
-
-        defaults.setProperty("muffle_amount", "0");
-        defaults.setProperty("sharpen_amount", "0");
-        defaults.setProperty("metronome", "0");
-
-        defaults.setProperty("total_fights", "0");
-        defaults.setProperty("fight_playtime_(seconds)", "0");
-
-        defaults.setProperty("hitbox_far_color", "FFFFFF");
-        defaults.setProperty("hitbox_near_color", "FF0000");
-        defaults.setProperty("cross_far_color", "FFFFFF");
-        defaults.setProperty("cross_near_color", "FF0000");
-        defaults.setProperty("cross_far_color_with_hitbox", "0000FF");
-        defaults.setProperty("cross_near_color_with_hitbox", "0000FF");
-        defaults.setProperty("server_hitbox_near_color", "7f00FF");
-        defaults.setProperty("server_hitbox_far_color", "7f00FF");
-        defaults.setProperty("your_reach_near_color", "FF0000");
-        defaults.setProperty("your_reach_far_color", "FFFFFF");
-        defaults.setProperty("their_reach_near_color", "FF0000");
-        defaults.setProperty("their_reach_far_color", "FFFFFF");
-        defaults.setProperty("your_jump_near_color", "007FFF");
-        defaults.setProperty("your_jump_far_color", "007FFF");
-        defaults.setProperty("their_jump_near_color", "007FFF");
-        defaults.setProperty("their_jump_far_color", "007FFF");
-        defaults.setProperty("ring_far_color", "FFFFFF");
-        defaults.setProperty("ring_near_color", "FF0000");
-        defaults.setProperty("jump_reset_color", "FFFF00");
-        defaults.setProperty("perfect_hit_color", "00FF00");
-
-        defaults.setProperty("cross_opacity", "255");
-        defaults.setProperty("hitbox_opacity", "255");
-        defaults.setProperty("server_hitbox_opacity", "125");
-        defaults.setProperty("your_reach_opacity", "255");
-        defaults.setProperty("their_reach_opacity", "255");
-        defaults.setProperty("your_jump_range_opacity", "255");
-        defaults.setProperty("their_jump_range_opacity", "255");
-        defaults.setProperty("jump_reset_opacity", "255");
-        defaults.setProperty("perfect_hit_opacity", "255");
-
-        defaults.setProperty("background_color", "000000");
-        defaults.setProperty("background_opacity", "230");
-        defaults.setProperty("border_color", "646464");
-        defaults.setProperty("border_opacity", "255");
-        defaults.setProperty("text_color", "DEDEDE");
-        defaults.setProperty("text_opacity", "255");
-        defaults.setProperty("hovered_color", "FFF3A6");
-        defaults.setProperty("hovered_opacity", "255");
-        defaults.setProperty("highlighted_color", "FFE350");
-        defaults.setProperty("highlighted_opacity", "255");
+        for (Color color : Color.values()) {
+            categories.put(color.colorKey(), color.category());
+            defaults.setProperty(color.colorKey(), color.hex());
+            categories.put(color.opacityKey(), color.category());
+            defaults.setProperty(color.opacityKey(), String.valueOf(color.opacity()));
+        }
 
         properties.putAll(defaults);
         load();
