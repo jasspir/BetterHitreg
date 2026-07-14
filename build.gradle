@@ -79,7 +79,7 @@ dependencies {
     }
 }
 
-def classTweaker = isUnobfuscated ? "unobfuscated.classTweaker" : "obfuscated.classTweaker"
+def classTweaker = isUnobfuscated ? "unobfuscated.classtweaker" : "obfuscated.classtweaker"
 
 loom {
     accessWidenerPath.set(file("src/main/resources/${classTweaker}"))

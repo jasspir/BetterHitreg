@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import you.jass.betterhitreg.hitreg.HitType;
 import you.jass.betterhitreg.hitreg.Hitreg;
 import you.jass.betterhitreg.settings.Toggle;
 
@@ -119,6 +120,11 @@ public class PacketProcessor {
 
         //if the sound happened far away, then block it if were silencing other fights and skip it if were not
         if (!soundWithinFight) return !Toggle.SILENCE_OTHER_FIGHTS.toggled();
+
+        //Disabling a raised shield is not a sprint/knockback hit. The server can still send the
+        //knockback attack sound for it, so suppress just that sound while leaving shield sounds
+        //and any other server feedback untouched.
+        if (Hitreg.lastAttackWasBlocked && sound.hitType == HitType.KNOCKBACK && sound.couldBeFromYou()) return false;
 
         //block nodamage sounds because they don't actually register hits so we don't know who they're from
         //nodamage answers a swing rather than a registered hit, so use the swing-time decision

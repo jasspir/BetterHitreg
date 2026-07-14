@@ -30,6 +30,7 @@ public class Hit {
     public boolean wasBlocked;
     public boolean wasSprinting;
     public boolean wasMovingFast;
+    public boolean wasMovingForward;
     public boolean wasFalling;
     public boolean wasOnGround;
     public boolean wasClimbing;
@@ -77,7 +78,11 @@ public class Hit {
     public void load() {
         shouldKnockback = !tooEarlyForSpecial && wasSprinting && sprintWasReset;
         shouldCrit = !tooEarlyForSpecial && !shouldKnockback && wasFalling && !wasOnGround && !wasClimbing && !wasTouchingWater && !wasInVehicle && !wasBlind;
-        shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast;
+        //version 1.21.1-
+        //shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast;
+
+        //version 1.21.2+
+        shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast && !wasMovingForward;
         shouldPick = !shouldKnockback && !shouldCrit && !shouldSweep;
         shouldFullPick = !tooEarlyForSpecial && shouldPick;
         shouldHalfPick = !shouldFullPick && shouldPick;
