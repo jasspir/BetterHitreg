@@ -2,4 +2,6 @@
 /.gradle/
 /.idea/
 /build/
+/buildSrc/.gradle/
+/buildSrc/build/
 /run/

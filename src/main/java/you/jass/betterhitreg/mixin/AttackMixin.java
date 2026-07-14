@@ -47,6 +47,7 @@ public abstract class AttackMixin {
         hit.wasBlind = client.player.hasEffect(MobEffects.BLINDNESS);
         hit.wasHoldingSword = client.player.getMainHandItem().is(ItemTags.SWORDS);
         hit.wasMovingFast = MultiVersion.isMovingFast();
+        hit.wasMovingForward = client.options.keyUp.isDown();
         hit.swordHadSharpness = MultiVersion.hasSharpness();
         hit.sprintWasReset = sprintIsReset;
         hit.wasNewTarget = lastTarget != target.getId();
@@ -59,6 +60,7 @@ public abstract class AttackMixin {
             fighting = true;
             hitByAnother = hit.wasHitByAnother;
             newTarget = hit.wasNewTarget;
+            lastAttackWasBlocked = hit.wasBlocked;
             lastAttackLocation = MultiVersion.getBasePosition(client.player);
             lastAttack = System.currentTimeMillis();
             lastTarget = target.getId();
