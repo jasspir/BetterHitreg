@@ -1,23 +1,21 @@
 package you.jass.betterhitreg.utility;
 
 //version 1.21.11+
+import net.minecraft.gizmos.GizmoStyle;
 import net.minecraft.gizmos.Gizmos;
 
 import net.minecraft.client.Camera;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import org.joml.Matrix4f;
 import you.jass.betterhitreg.hitreg.Hitreg;
+import you.jass.betterhitreg.settings.Setting;
 import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.settings.Toggle;
 
 import java.awt.*;
-import java.util.Stack;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.*;
 
@@ -81,6 +79,8 @@ public class Render {
         boolean isTheirReach = Toggle.RENDER_THEIR_REACH.toggled() && !theirInSky;
         boolean isYourJump = Toggle.RENDER_YOUR_JUMP.toggled() && !inSky;
         boolean isTheirJump = Toggle.RENDER_THEIR_JUMP.toggled() && !theirInSky;
+        
+        renderFloor(camera);
 
         if (!Hitreg.bothAlive || Hitreg.targetInvisible) {
             if (isYourReach || isYourJump) {
@@ -132,6 +132,64 @@ public class Render {
                 box(camera, target.getBoundingBox(), 3, color);
             }
         }
+    }
+
+    public static void renderFloor(Camera camera) {
+        if (ground == Integer.MAX_VALUE) return;
+        double y = ground + 0.01;
+
+        if (Toggle.SOLID_FLOOR.toggled()) {
+            Vec3 position = camera.position();
+            int size = 512;
+            Vec3 v0 = new Vec3(position.x - size, y, position.z - size);
+            Vec3 v1 = new Vec3(position.x - size, y, position.z + size);
+            Vec3 v2 = new Vec3(position.x + size, y, position.z + size);
+            Vec3 v3 = new Vec3(position.x + size, y, position.z - size);
+            Gizmos.rect(v0, v1, v2, v3, GizmoStyle.fill(0xFF000000));
+        }
+
+        int step = (int) Setting.GRID_FLOOR.get();
+        if (step == 0) return;
+
+        //version 1.21.10-
+        //Vec3 cameraPosition = camera.getPosition();
+
+        //version 1.21.11+
+        Vec3 cameraPosition = camera.position();
+
+        double fadeOutStart = 0;
+        double renderRadius = 16;
+
+        int minX = (int) Math.floor((cameraPosition.x - renderRadius) / step) * step;
+        int maxX = (int) Math.ceil ((cameraPosition.x + renderRadius) / step) * step;
+        int minZ = (int) Math.floor((cameraPosition.z - renderRadius) / step) * step;
+        int maxZ = (int) Math.ceil ((cameraPosition.z + renderRadius) / step) * step;
+
+        for (int x = minX; x <= maxX; x += step) {
+            for (int z = minZ; z <= maxZ; z += step) {
+                if (x < maxX) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x + step, y, z), fadeOutStart, 16);
+                if (z < maxZ) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x, y, z + step), fadeOutStart, 16);
+            }
+        }
+    }
+
+    private static void drawLineIfVisible(Camera camera, Vec3 playerPos, Vec3 start, Vec3 end, double fadeStart, double fadeEnd) {
+        double distToSeg = closestDistanceToSegment(playerPos, start, end);
+        if (distToSeg > fadeEnd) return;
+        double fadeProgress = Math.max(0, Math.min(1, (distToSeg - fadeStart) / (fadeEnd - fadeStart)));
+        fadeProgress = fadeProgress * fadeProgress * (3 - 2 * fadeProgress); // smoothstep
+        int alpha = (int) (255 * (1 - fadeProgress));
+        int color = (alpha << 24) | 0xFFFFFF;
+        line(camera, start, end, 3, color);
+    }
+
+    private static double closestDistanceToSegment(Vec3 point, Vec3 segStart, Vec3 segEnd) {
+        double segLenSq = segStart.distanceToSqr(segEnd);
+        if (segLenSq == 0.0) return point.distanceTo(segStart);
+        double fraction = ((point.x - segStart.x) * (segEnd.x - segStart.x) + (point.z - segStart.z) * (segEnd.z - segStart.z)) / segLenSq;
+        fraction = Math.max(0, Math.min(1, fraction));
+        Vec3 closestPoint = new Vec3(segStart.x + fraction * (segEnd.x - segStart.x), segStart.y, segStart.z + fraction * (segEnd.z - segStart.z));
+        return point.distanceTo(closestPoint);
     }
 
     public static AABB getBoundingBox(Entity entity) {
@@ -231,7 +289,7 @@ public class Render {
         }
     }
 
-    public static void cross(Camera camera, Vec3 center, float pixelThickness, double pixelHalfLength, double nudgeTowardVec3d, int rgba) {
+    public static void cross(Camera camera, Vec3 center, float pixelThickness, double pixelHalfLength, double nudgeTowardVec3, int rgba) {
         //version 1.21.10-
         //Vec3 cameraPosition = camera.getPosition();
 
@@ -240,9 +298,9 @@ public class Render {
 
         Vec3 position = cameraPosition.subtract(center);
 
-        if (nudgeTowardVec3d > 0.0) {
+        if (nudgeTowardVec3 > 0.0) {
             Vec3 nudgeDir = position.normalize();
-            center = center.add(nudgeDir.scale(nudgeTowardVec3d));
+            center = center.add(nudgeDir.scale(nudgeTowardVec3));
             position = cameraPosition.subtract(center);
         }
 

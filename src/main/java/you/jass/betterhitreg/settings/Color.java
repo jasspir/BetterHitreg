@@ -18,6 +18,8 @@ public enum Color {
     THEIR_JUMP_NEAR("007FFF", 255, "render"),
     JUMP_RESET("FFFF00", 255, "render"),
     PERFECT_HIT("00FF00", 255, "render"),
+    GRID("FFFFFF", 255, "render"),
+    FLOOR("000000", 255, "render"),
     BACKGROUND("000000", 230, "ui"),
     BORDER("646464", 255, "ui"),
     TEXT("DEDEDE", 255, "ui"),

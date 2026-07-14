@@ -20,6 +20,10 @@ public enum Setting {
         this.defaultValue = defaultValue;
     }
 
+    public double get() {
+        return Settings.getDouble(key);
+    }
+
     public String key() {
         return key;
     }

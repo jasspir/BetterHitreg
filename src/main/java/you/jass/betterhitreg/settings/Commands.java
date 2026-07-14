@@ -41,10 +41,10 @@ public class Commands {
                             .executes(context -> setSharpen(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setSharpen(0)));
 
-            root = root.then(literal("setFloorGridSize")
+            root = root.then(literal("setGridSize")
                     .then(argument("value", IntegerArgumentType.integer())
-                            .executes(context -> setFloorGridSize(IntegerArgumentType.getInteger(context, "value"))))
-                    .executes(context -> setFloorGridSize(0)));
+                            .executes(context -> setGridSize(IntegerArgumentType.getInteger(context, "value"))))
+                    .executes(context -> setGridSize(0)));
 
             dispatcher.register(root.executes(context -> guide()));
         });
@@ -113,9 +113,9 @@ public class Commands {
         return 1;
     }
 
-    public static int setFloorGridSize(int size) {
+    public static int setGridSize(int size) {
         Settings.setInt("floor_grid_size", size);
-        message("floor grid size §7set to §f" + size, "/hitreg setFloorGridSize 0");
+        message("grid size §7set to §f" + size, "/hitreg setGridSize 0");
         return 1;
     }
 
