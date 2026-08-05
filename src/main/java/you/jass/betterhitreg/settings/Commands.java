@@ -114,14 +114,10 @@ public class Commands {
     }
 
     public static int setMetronome(int metronome) {
-        if (metronome < 10) {
-            Settings.set("metronome", "0");
-            message("metronome §cdisabled", "/hitreg metronome");
-            return 1;
-        }
-
+        if (metronome < 0) metronome = 0;
+        if (metronome == 0) message("metronome §cdisabled", "/hitreg metronome");
+        else message("metronome §7set to §f" + metronome + " §7ticks (" + (metronome * 50) + "ms)", "/hitreg metronome " + metronome);
         Settings.setInt("metronome", metronome);
-        message("metronome §7set to §f" + metronome + " §7ticks (" + (metronome * 50) + "ms)", "/hitreg metronome " + metronome);
         return 1;
     }
 
