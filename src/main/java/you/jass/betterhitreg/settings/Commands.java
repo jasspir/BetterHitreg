@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import you.jass.betterhitreg.ui.UIScreen;
 import you.jass.betterhitreg.utility.MultiVersion;
+import you.jass.betterhitreg.utility.Scheduler;
 
 //version 1.21.11-
 //import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
@@ -59,8 +60,10 @@ public class Commands {
     }
 
     public static int menu() {
-        if (!MultiVersion.isScreenOpen()) MultiVersion.openScreen(new UIScreen());
-        if (Settings.getBoolean("tutorial")) Settings.set("tutorial", "false");
+        Scheduler.schedule(50, ()-> {
+            if (!MultiVersion.isScreenOpen()) MultiVersion.openScreen(new UIScreen());
+        });
+
         return 1;
     }
 

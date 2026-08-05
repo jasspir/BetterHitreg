@@ -364,7 +364,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 12,
                 10, horizontalGap,
-                font, "Perfect Hit Color",
+                font, "Color Perfect Hits",
                 checkbox, true,
                 Toggle.PERFECT_HIT_COLOR.toggled(),
                 checked -> Toggle.PERFECT_HIT_COLOR.toggle()
@@ -374,7 +374,7 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column2Start,
                 panelHeightCenter - rowStart + verticalGap * 13,
                 10, horizontalGap,
-                font, "Jump Reset Color",
+                font, "Color Jump Resets",
                 checkbox, true,
                 Toggle.JUMP_RESET_COLOR.toggled(),
                 checked -> Toggle.JUMP_RESET_COLOR.toggle()
