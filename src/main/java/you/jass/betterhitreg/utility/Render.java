@@ -157,18 +157,17 @@ public class Render {
         //version 1.21.11+
         Vec3 cameraPosition = camera.position();
 
-        double fadeOutStart = 0;
-        double renderRadius = 16;
+        double radius = 16;
 
-        int minX = (int) Math.floor((cameraPosition.x - renderRadius) / step) * step;
-        int maxX = (int) Math.ceil ((cameraPosition.x + renderRadius) / step) * step;
-        int minZ = (int) Math.floor((cameraPosition.z - renderRadius) / step) * step;
-        int maxZ = (int) Math.ceil ((cameraPosition.z + renderRadius) / step) * step;
+        int minX = (int) Math.floor((cameraPosition.x - radius) / step) * step;
+        int maxX = (int) Math.ceil ((cameraPosition.x + radius) / step) * step;
+        int minZ = (int) Math.floor((cameraPosition.z - radius) / step) * step;
+        int maxZ = (int) Math.ceil ((cameraPosition.z + radius) / step) * step;
 
         for (int x = minX; x <= maxX; x += step) {
             for (int z = minZ; z <= maxZ; z += step) {
-                if (x < maxX) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x + step, y, z), fadeOutStart, 16);
-                if (z < maxZ) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x, y, z + step), fadeOutStart, 16);
+                if (x < maxX) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x + step, y, z), 0, radius);
+                if (z < maxZ) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x, y, z + step), 0, radius);
             }
         }
     }
@@ -177,7 +176,7 @@ public class Render {
         double distToSeg = closestDistanceToSegment(playerPos, start, end);
         if (distToSeg > fadeEnd) return;
         double fadeProgress = Math.max(0, Math.min(1, (distToSeg - fadeStart) / (fadeEnd - fadeStart)));
-        fadeProgress = fadeProgress * fadeProgress * (3 - 2 * fadeProgress); // smoothstep
+        fadeProgress = fadeProgress * fadeProgress * (3 - 2 * fadeProgress);
         int alpha = (int) (255 * (1 - fadeProgress));
         int color = (alpha << 24) | 0xFFFFFF;
         line(camera, start, end, 3, color);

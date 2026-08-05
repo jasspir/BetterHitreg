@@ -2,6 +2,8 @@ package you.jass.betterhitreg.settings;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import you.jass.betterhitreg.ui.UIScreen;
+import you.jass.betterhitreg.utility.MultiVersion;
 
 //version 1.21.11-
 //import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
@@ -41,28 +43,23 @@ public class Commands {
                             .executes(context -> setSharpen(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setSharpen(0)));
 
+            root = root.then(literal("setMetronome")
+                    .then(argument("value", IntegerArgumentType.integer())
+                            .executes(context -> setMetronome(IntegerArgumentType.getInteger(context, "value"))))
+                    .executes(context -> setMetronome(0)));
+
+
             root = root.then(literal("setGridSize")
                     .then(argument("value", IntegerArgumentType.integer())
                             .executes(context -> setGridSize(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setGridSize(0)));
 
-            dispatcher.register(root.executes(context -> guide()));
+            dispatcher.register(root.executes(context -> menu()));
         });
     }
 
-    public static int guide() {
-        message("/hitreg <command> (press " + getUIKey() + " for UI)", "/hitreg " + Toggle.TOGGLE.key());
-        message("custom hitreg: " + "§f" + Settings.getHitreg() + "§7ms", "/hitreg set 0");
-
-        for (Toggle toggle : Toggle.values()) {
-            if (toggle == Toggle.TOGGLE) {
-                message("§fhitreg toggled§7: " + onOrOff(toggle.toggled()), "/hitreg " + toggle.key());
-                continue;
-            }
-
-            message("§f" + toggle.label() + "§7: " + onOrOff(toggle.toggled()), "/hitreg " + toggle.key());
-        }
-
+    public static int menu() {
+        if (!MultiVersion.isScreenOpen()) MultiVersion.openScreen(new UIScreen());
         if (Settings.getBoolean("tutorial")) Settings.set("tutorial", "false");
         return 1;
     }
@@ -110,6 +107,18 @@ public class Commands {
 
         Settings.setFloat("sharpen_amount", sharpen / 100f);
         message("hitsound sharpening §7set to §f" + sharpen + "§7%", "/hitreg setSharpen 0");
+        return 1;
+    }
+
+    public static int setMetronome(int metronome) {
+        if (metronome < 10) {
+            Settings.set("metronome", "0");
+            message("metronome §cdisabled", "/hitreg metronome");
+            return 1;
+        }
+
+        Settings.setInt("metronome", metronome);
+        message("metronome §7set to §f" + metronome + " §7ticks (" + (metronome * 50) + "ms)", "/hitreg metronome " + metronome);
         return 1;
     }
 

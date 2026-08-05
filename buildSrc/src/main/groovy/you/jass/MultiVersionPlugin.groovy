@@ -33,12 +33,9 @@ class MultiVersionPlugin implements Plugin<Project> {
         }
 
         project.plugins.withId("idea") {
-            project.tasks.named("ideaModule") {
-                dependsOn(processTask)
-            }
-
             project.idea.module {
                 generatedSourceDirs += generated
+                excludeDirs += generated
             }
         }
 

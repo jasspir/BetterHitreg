@@ -14,6 +14,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import you.jass.betterhitreg.settings.Commands;
+import you.jass.betterhitreg.settings.Setting;
 import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.settings.Toggle;
 import you.jass.betterhitreg.ui.UIUtils;
@@ -79,6 +80,9 @@ public class Hitreg {
     public static int theirHits;
     public static boolean wasSwinging;
     public static boolean tutorialAlreadySeen;
+    public static int tickWorldLoaded;
+
+    //TODO make opponent swing start fight
 
     public static void tick() {
         if (client.player == null || client.level == null) return;

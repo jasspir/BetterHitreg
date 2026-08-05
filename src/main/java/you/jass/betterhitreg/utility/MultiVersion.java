@@ -4,16 +4,16 @@ package you.jass.betterhitreg.utility;
 //import net.minecraft.client.gui.GuiComponent;
 
 //version 1.20 - 1.21.11
-import net.minecraft.client.gui.GuiGraphics;
+//import net.minecraft.client.gui.GuiGraphics;
 
 //version 26.1+
 //import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 //version 1.21.11-
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+//import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 
 //version 26.1+
-//import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
 //version 1.21.11+
 import net.minecraft.gizmos.Gizmos;

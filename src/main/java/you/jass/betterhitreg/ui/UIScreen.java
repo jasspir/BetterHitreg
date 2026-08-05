@@ -17,6 +17,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import you.jass.betterhitreg.hitreg.Hitreg;
 import you.jass.betterhitreg.settings.Commands;
+import you.jass.betterhitreg.settings.Setting;
 import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.settings.Toggle;
 import you.jass.betterhitreg.utility.MultiVersion;
@@ -77,22 +78,15 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter,
                 panelHeightCenter - halfPanelHeight + 10,
-                font, "BetterHitreg v1.0.6",
+                font, "BetterHitreg v1.0.7 (" + MultiVersion.getVersion() + ")",
                 header, true, true
-        ));
-
-        widgets.add(new UILabel(
-                panelWidthCenter,
-                panelHeightCenter + halfPanelHeight - 10,
-                font, "Made by Jass • Modrinth.com/mod/betterhitreg • " + MultiVersion.getVersion(),
-                footer, true, true
         ));
 
         widgets.add(new UISlider(
                 panelWidthCenter - sliderStart,
                 panelHeightCenter - rowStart + verticalGap * 2,
                 panelWidthCenter - column1Start,
-                sliderWidth, 0, 300, Settings.getHitreg(), sliderGap, 1,
+                sliderWidth - 55, 0, 200, Settings.getHitreg(), sliderGap - 2, 1,
                 "Hitreg", "", "ᴍs",
                 font, slider, false, false,
                 v -> {},
@@ -103,10 +97,10 @@ public class UIScreen extends Screen {
         ));
 
         widgets.add(new UICheckbox(
-                panelWidthCenter - column2Start + 53,
+                panelWidthCenter - column2Start - 20,
                 panelHeightCenter - rowStart + verticalGap * 2,
-                10, 92,
-                font, "Enable Hitreg",
+                10, 0,
+                font, "",
                 checkbox, true,
                 Toggle.TOGGLE.toggled(),
                 checked -> Toggle.TOGGLE.toggle()
@@ -266,27 +260,19 @@ public class UIScreen extends Screen {
                 "Metronome", "", "t",
                 font, slider, true, true,
                 v -> {},
-                v -> {
-                    if (v < 10) {
-                        Settings.set("metronome", "0");
-                        message("metronome §cdisabled", "/hitreg metronome");
-                    } else {
-                        Settings.setInt("metronome", v);
-                        message("metronome §7set to §f" + v + " §7ticks (" + (v * 50) + "ms)", "/hitreg metronome " + v);
-                    }
-                }
+                Commands::setMetronome
         ));
 
         widgets.add(new UILabel(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 3,
+                panelHeightCenter - rowStart + verticalGap * 2,
                 font, "Render",
                 category, false, false
         ));
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 4,
+                panelHeightCenter - rowStart + verticalGap * 3,
                 10, horizontalGap,
                 font, "Hide Other Fights",
                 checkbox, true,
@@ -296,7 +282,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 5,
+                panelHeightCenter - rowStart + verticalGap * 4,
                 10, horizontalGap,
                 font, "Hide Animations",
                 checkbox, true,
@@ -306,7 +292,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 6,
+                panelHeightCenter - rowStart + verticalGap * 5,
                 10, horizontalGap,
                 font, "Hide Armor",
                 checkbox, true,
@@ -316,7 +302,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 7,
+                panelHeightCenter - rowStart + verticalGap * 6,
                 10, horizontalGap,
                 font, "Hide All Particles",
                 checkbox, true,
@@ -326,7 +312,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 8,
+                panelHeightCenter - rowStart + verticalGap * 7,
                 10, horizontalGap,
                 font, "Hide Other Particles",
                 checkbox, true,
@@ -336,7 +322,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 9,
+                panelHeightCenter - rowStart + verticalGap * 8,
                 10, horizontalGap,
                 font, "Always Hit Particles",
                 checkbox, true,
@@ -346,7 +332,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 10,
+                panelHeightCenter - rowStart + verticalGap * 9,
                 10, horizontalGap,
                 font, "Show Target Hitbox",
                 checkbox, true,
@@ -356,7 +342,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 11,
+                panelHeightCenter - rowStart + verticalGap * 10,
                 10, horizontalGap,
                 font, "Show Target Cross",
                 checkbox, true,
@@ -366,7 +352,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 12,
+                panelHeightCenter - rowStart + verticalGap * 11,
                 10, horizontalGap,
                 font, "Show Server Hitbox",
                 checkbox, true,
@@ -376,47 +362,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 13,
-                10, horizontalGap,
-                font, "Show Your Hit Range",
-                checkbox, true,
-                Toggle.RENDER_YOUR_REACH.toggled(),
-                checked -> Toggle.RENDER_YOUR_REACH.toggle()
-        ));
-
-        widgets.add(new UICheckbox(
-                panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 14,
-                10, horizontalGap,
-                font, "Show Their Hit Range",
-                checkbox, true,
-                Toggle.RENDER_THEIR_REACH.toggled(),
-                checked -> Toggle.RENDER_THEIR_REACH.toggle()
-        ));
-
-        widgets.add(new UICheckbox(
-                panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 15,
-                10, horizontalGap,
-                font, "Show Your Jump Range",
-                checkbox, true,
-                Toggle.RENDER_YOUR_JUMP.toggled(),
-                checked -> Toggle.RENDER_YOUR_JUMP.toggle()
-        ));
-
-        widgets.add(new UICheckbox(
-                panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 16,
-                10, horizontalGap,
-                font, "Show Their Jump Range",
-                checkbox, true,
-                Toggle.RENDER_THEIR_JUMP.toggled(),
-                checked -> Toggle.RENDER_THEIR_JUMP.toggle()
-        ));
-
-        widgets.add(new UICheckbox(
-                panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 17,
+                panelHeightCenter - rowStart + verticalGap * 12,
                 10, horizontalGap,
                 font, "Perfect Hit Color",
                 checkbox, true,
@@ -426,12 +372,97 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column2Start,
-                panelHeightCenter - rowStart + verticalGap * 18,
+                panelHeightCenter - rowStart + verticalGap * 13,
                 10, horizontalGap,
                 font, "Jump Reset Color",
                 checkbox, true,
                 Toggle.JUMP_RESET_COLOR.toggled(),
                 checked -> Toggle.JUMP_RESET_COLOR.toggle()
+        ));
+
+        widgets.add(new UILabel(
+                panelWidthCenter - column2Start,
+                panelHeightCenter - rowStart + verticalGap * 14,
+                font, "Hit Range",
+                checkbox, false, false
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column2Start + 75,
+                panelHeightCenter - rowStart + verticalGap * 14,
+                10, horizontalGap - 120,
+                font, "You",
+                checkbox, true,
+                Toggle.RENDER_YOUR_REACH.toggled(),
+                checked -> Toggle.RENDER_YOUR_REACH.toggle()
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column2Start + 115,
+                panelHeightCenter - rowStart + verticalGap * 14,
+                10, horizontalGap - 115,
+                font, "Them",
+                checkbox, true,
+                Toggle.RENDER_THEIR_REACH.toggled(),
+                checked -> Toggle.RENDER_THEIR_REACH.toggle()
+        ));
+
+        widgets.add(new UILabel(
+                panelWidthCenter - column2Start,
+                panelHeightCenter - rowStart + verticalGap * 15,
+                font, "Jump Range",
+                checkbox, false, false
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column2Start + 75,
+                panelHeightCenter - rowStart + verticalGap * 15,
+                10, horizontalGap - 120,
+                font, "You",
+                checkbox, true,
+                Toggle.RENDER_YOUR_JUMP.toggled(),
+                checked -> Toggle.RENDER_YOUR_JUMP.toggle()
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column2Start + 115,
+                panelHeightCenter - rowStart + verticalGap * 15,
+                10, horizontalGap - 115,
+                font, "Them",
+                checkbox, true,
+                Toggle.RENDER_THEIR_JUMP.toggled(),
+                checked -> Toggle.RENDER_THEIR_JUMP.toggle()
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column2Start,
+                panelHeightCenter - rowStart + verticalGap * 16,
+                10, horizontalGap,
+                font, "Void World",
+                checkbox, true,
+                Toggle.VOID_WORLD.toggled(),
+                checked -> Toggle.VOID_WORLD.toggle()
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column2Start,
+                panelHeightCenter - rowStart + verticalGap * 17,
+                10, horizontalGap,
+                font, "Custom Ground",
+                checkbox, true,
+                Toggle.SOLID_FLOOR.toggled(),
+                checked -> Toggle.SOLID_FLOOR.toggle()
+        ));
+
+        widgets.add(new UISlider(
+                panelWidthCenter - column2Start + 52,
+                panelHeightCenter - rowStart + verticalGap * 18,
+                panelWidthCenter - column2Start,
+                sliderWidth - 50, 0, 16, (float) Setting.GRID_FLOOR.get(), sliderGap - 4, 1,
+                "Grid Floor", "", "b",
+                font, slider, true, true,
+                v -> {},
+                Commands::setGridSize
         ));
     }
 
