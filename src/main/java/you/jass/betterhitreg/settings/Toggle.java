@@ -30,6 +30,7 @@ public enum Toggle {
     RENDER_THEIR_JUMP("RenderTheirJump", "render their jump range", false),
     PERFECT_HIT_COLOR("PerfectHitColor", "color first tick hits", false),
     JUMP_RESET_COLOR("JumpResetColor", "color jump resets", false),
+    JUMP_RESET_SOUND("JumpResetSound", "play sound on jump resets", false),
     VOID_WORLD("VoidWorld", "unrender world", false),
     SOLID_FLOOR("SolidFloor", "render solid floor", false);
 

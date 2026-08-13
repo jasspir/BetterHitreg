@@ -230,9 +230,19 @@ public class UIScreen extends Screen {
                 checked -> Toggle.SILENCE_THEM.toggle()
         ));
 
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column1Start,
+                panelHeightCenter - rowStart + verticalGap * 16,
+                10, horizontalGap,
+                font, "Jump Reset Sound",
+                checkbox, true,
+                Toggle.JUMP_RESET_SOUND.toggled(),
+                checked -> Toggle.JUMP_RESET_SOUND.toggle()
+        ));
+
         widgets.add(new UISlider(
                 panelWidthCenter - sliderStart + 25,
-                panelHeightCenter - rowStart + verticalGap * 16,
+                panelHeightCenter - rowStart + verticalGap * 17,
                 panelWidthCenter - column1Start,
                 sliderWidth - 55, 0, 100, Settings.getFloat("muffle_amount") * 100, sliderGap - 4, 5,
                 "Hit Muffling", "", "%",
@@ -243,7 +253,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UISlider(
                 panelWidthCenter - sliderStart + 42,
-                panelHeightCenter - rowStart + verticalGap * 17,
+                panelHeightCenter - rowStart + verticalGap * 18,
                 panelWidthCenter - column1Start,
                 sliderWidth - 72, 0, 100, Settings.getFloat("sharpen_amount") * 100, sliderGap - 4, 5,
                 "Hit Sharpening", "", "%",
@@ -254,7 +264,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UISlider(
                 panelWidthCenter - sliderStart + 22,
-                panelHeightCenter - rowStart + verticalGap * 18,
+                panelHeightCenter - rowStart + verticalGap * 19,
                 panelWidthCenter - column1Start,
                 sliderWidth - 49, 9, 25, Settings.getInt("metronome"), sliderGap - 7, 1,
                 "Metronome", "", "t",

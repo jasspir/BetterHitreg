@@ -93,7 +93,7 @@ public class Hitreg {
 
         if (metronome >= 10) {
             if (tick % metronome == 0) {
-                Hitreg.client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
+                client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
             }
         }
 
@@ -127,6 +127,7 @@ public class Hitreg {
             if (jumpReset >= -1 && jumpReset <= 1) {
                 //landed
                 lastJumpReset = System.currentTimeMillis();
+                if (Toggle.JUMP_RESET_SOUND.toggled()) client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1));
             }
             else if (tick - lastTickBacked > 10 && jumpReset >= -3 && jumpReset <= 3) {
                 //missed
