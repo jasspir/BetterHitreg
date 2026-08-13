@@ -15,6 +15,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.utility.MultiVersion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.KeyMapping;
@@ -48,6 +49,7 @@ public class BetterHitreg implements ModInitializer {
     public void onInitialize() {
         client = Minecraft.getInstance();
         Commands.initialize();
+        Settings.initialize();
         Render.updateColors();
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> tick());

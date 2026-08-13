@@ -14,7 +14,7 @@ public class Settings {
     private static final Properties defaults = new Properties();
     private static final Map<String, String> categories = new HashMap<>();
 
-    static {
+    public static void initialize() {
         for (Setting setting : Setting.values()) {
             categories.put(setting.key(), setting.category());
             defaults.setProperty(setting.key(), setting.defaultValue());
