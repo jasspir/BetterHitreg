@@ -71,15 +71,21 @@ public class Commands {
                             .executes(context -> setGridSize(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setGridSize(0)));
 
+            root = root.then(literal("setGridRange")
+                    .then(argument("value", IntegerArgumentType.integer())
+                            .executes(context -> setGridRange(IntegerArgumentType.getInteger(context, "value"))))
+                    .executes(context -> setGridRange(0)));
+
+
             root = root.then(literal("setSoundRecencyThreshold")
                     .then(argument("value", IntegerArgumentType.integer())
                             .executes(context -> setSoundRecencyThreshold(IntegerArgumentType.getInteger(context, "value"))))
-                    .executes(context -> setSoundRecencyThreshold(0)));
+                    .executes(context -> setSoundRecencyThreshold(50)));
 
             root = root.then(literal("setApproachHitboxRange")
                     .then(argument("value", IntegerArgumentType.integer())
                             .executes(context -> setApproachHitboxRange(IntegerArgumentType.getInteger(context, "value"))))
-                    .executes(context -> setApproachHitboxRange(0)));
+                    .executes(context -> setApproachHitboxRange(6)));
 
             dispatcher.register(root.executes(context -> menu()));
         });
@@ -112,12 +118,12 @@ public class Commands {
     public static int setMuffle(int muffle) {
         if (muffle <= 0) {
             Settings.setFloat("muffle_amount", 0);
-            message("hitsound muffling §cdisabled", "/hitreg setMuffle 0");
+            message("hitsound muffling §cdisabled", "/hitreg setMuffle " + muffle);
             return 1;
         }
 
         Settings.setFloat("muffle_amount", muffle / 100f);
-        message("hitsound muffling §7set to §f" + muffle + "§7%", "/hitreg setMuffle 0");
+        message("hitsound muffling §7set to §f" + muffle + "§7%", "/hitreg setMuffle " + muffle);
         return 1;
     }
 
@@ -129,7 +135,7 @@ public class Commands {
         }
 
         Settings.setFloat("sharpen_amount", sharpen / 100f);
-        message("hitsound sharpening §7set to §f" + sharpen + "§7%", "/hitreg setSharpen 0");
+        message("hitsound sharpening §7set to §f" + sharpen + "§7%", "/hitreg setSharpen " + sharpen);
         return 1;
     }
 
@@ -143,19 +149,25 @@ public class Commands {
 
     public static int setGridSize(int size) {
         Settings.setInt("floor_grid_size", size);
-        message("grid size §7set to §f" + size, "/hitreg setGridSize 0");
+        message("grid size §7set to §f" + size, "/hitreg setGridSize " + size);
         return 1;
     }
 
-    public static int setSoundRecencyThreshold(int value) {
-        Settings.setInt("sound_recency_threshold", value);
-        message("sound recency threshold §7set to §f" + value + " §7(default is 50)", "/hitreg setSoundRecencyThreshold 50");
+    public static int setGridRange(int range) {
+        Settings.setInt("floor_grid_range", range);
+        message("grid range §7set to §f" + range + " §7(default is 16)", "/hitreg setGridRange " + range);
         return 1;
     }
 
-    public static int setApproachHitboxRange(int value) {
-        Settings.setInt("approach_hitbox_range", value);
-        message("approach hitbox range §7set to §f" + value + " §7(default is 6)", "/hitreg setApproachHitboxRange 6");
+    public static int setSoundRecencyThreshold(int threshold) {
+        Settings.setInt("sound_recency_threshold", threshold);
+        message("sound recency threshold §7set to §f" + threshold + " §7(default is 50)", "/hitreg setSoundRecencyThreshold " + threshold);
+        return 1;
+    }
+
+    public static int setApproachHitboxRange(int range) {
+        Settings.setInt("approach_hitbox_range", range);
+        message("approach hitbox range §7set to §f" + range + " §7(default is 6)", "/hitreg setApproachHitboxRange " + range);
         return 1;
     }
 
