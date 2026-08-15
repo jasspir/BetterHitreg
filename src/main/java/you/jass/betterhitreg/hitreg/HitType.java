@@ -1,15 +1,11 @@
 package you.jass.betterhitreg.hitreg;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
-import you.jass.betterhitreg.mixin.EntityAccessor;
-import you.jass.betterhitreg.utility.MultiVersion;
 
 import java.util.List;
 import java.util.Arrays;

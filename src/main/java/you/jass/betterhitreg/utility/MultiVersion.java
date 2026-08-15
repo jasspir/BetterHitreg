@@ -16,6 +16,7 @@ package you.jass.betterhitreg.utility;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
 //version 1.21.11+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.gizmos.Gizmos;
 import net.minecraft.gizmos.GizmoStyle;
 
@@ -35,15 +36,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.util.Mth;
@@ -252,7 +250,7 @@ public class MultiVersion {
         ClickEvent clickEvent = !settingHitreg ? new ClickEvent.RunCommand(command) : new ClickEvent.SuggestCommand(command);
         HoverEvent hoverEvent = new HoverEvent.ShowText(hoverText);
 
-        Component text = Component.literal("Hitreg §8|§r " + message).setStyle(Style.EMPTY
+        Component text = Component.literal("Hitreg §8|§r " + message).setStyle(net.minecraft.network.chat.Style.EMPTY
                 .withColor(TextColor.fromRgb(0xFFD700))
                 .withClickEvent(clickEvent)
                 .withHoverEvent(hoverEvent));
@@ -518,5 +516,9 @@ public class MultiVersion {
 
         //version 1.21.11+
         Gizmos.rect(vertex0, vertex1, vertex2, vertex3, GizmoStyle.fill(color));
+    }
+
+    public static void render(Vec3 vertex0, Vec3 vertex1, Vec3 vertex2, Vec3 vertex3, int color) {
+        render(new PoseStack().last().pose(), vertex0, vertex1, vertex2, vertex3, color);
     }
 }

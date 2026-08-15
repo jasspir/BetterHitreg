@@ -6,6 +6,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.phys.Vec3;
 import you.jass.betterhitreg.hitreg.HitType;
 import you.jass.betterhitreg.hitreg.Hitreg;
+import you.jass.betterhitreg.settings.Setting;
 import you.jass.betterhitreg.settings.Toggle;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.*;
@@ -60,7 +61,7 @@ public class Sound {
     }
 
     public boolean wasRecent() {
-        return distanceFromTimestamp(System.currentTimeMillis()) <= 50;
+        return distanceFromTimestamp(System.currentTimeMillis()) <= Setting.SOUND_RECENCY_THRESHOLD.get();
     }
 
     public long distanceFromTimestamp(long time) {

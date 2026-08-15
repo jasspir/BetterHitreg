@@ -1,7 +1,11 @@
 package you.jass.betterhitreg.settings;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.network.chat.Component;
 import you.jass.betterhitreg.ui.UIScreen;
 import you.jass.betterhitreg.utility.MultiVersion;
 import you.jass.betterhitreg.utility.Scheduler;
@@ -29,6 +33,18 @@ public class Commands {
                 }));
             }
 
+            var colorArg = literal("color");
+            for (Style style : Style.values()) {
+                var styleArg = literal(style.name().toLowerCase())
+                        .executes(context -> showColor(style))
+                        .then(argument("hex", StringArgumentType.word())
+                                .executes(context -> setColor(context, style, false))
+                                .then(argument("opacity", IntegerArgumentType.integer(0, 255))
+                                        .executes(context -> setColor(context, style, true))));
+                colorArg.then(styleArg);
+            }
+            root.then(colorArg);
+
             root = root.then(literal("setHitreg")
                    .then(argument("value", IntegerArgumentType.integer())
                    .executes(context -> setHitreg(IntegerArgumentType.getInteger(context, "value"))))
@@ -55,6 +71,16 @@ public class Commands {
                             .executes(context -> setGridSize(IntegerArgumentType.getInteger(context, "value"))))
                     .executes(context -> setGridSize(0)));
 
+            root = root.then(literal("setSoundRecencyThreshold")
+                    .then(argument("value", IntegerArgumentType.integer())
+                            .executes(context -> setSoundRecencyThreshold(IntegerArgumentType.getInteger(context, "value"))))
+                    .executes(context -> setSoundRecencyThreshold(0)));
+
+            root = root.then(literal("setApproachHitboxRange")
+                    .then(argument("value", IntegerArgumentType.integer())
+                            .executes(context -> setApproachHitboxRange(IntegerArgumentType.getInteger(context, "value"))))
+                    .executes(context -> setApproachHitboxRange(0)));
+
             dispatcher.register(root.executes(context -> menu()));
         });
     }
@@ -76,16 +102,10 @@ public class Commands {
     }
 
     public static int setHitreg(int hitreg) {
-        if (hitreg < 0) {
-            Settings.set("toggled", "false");
-            message("custom hitreg §7is now §coff", "/hitreg " + Toggle.TOGGLE.key());
-            return 1;
-        }
-
+        if (hitreg < 0) hitreg = 0;
         Settings.set("hitreg", String.valueOf(hitreg));
-        message("hitreg §7set to §f" + hitreg + "§7ms", "/hitreg setHitreg 0");
-
-        if (!Toggle.TOGGLE.toggled()) Toggle.TOGGLE.toggle();
+        message("hitreg §7set to §f" + hitreg + "§7ms", "/hitreg setHitreg " + hitreg);
+        if (!Toggle.TOGGLE.toggled()) message("custom hitreg §7is currently off, use §f/hitreg toggle §7to enable it", "/hitreg toggle");
         return 1;
     }
 
@@ -127,7 +147,47 @@ public class Commands {
         return 1;
     }
 
+    public static int setSoundRecencyThreshold(int value) {
+        Settings.setInt("sound_recency_threshold", value);
+        message("sound recency threshold §7set to §f" + value, "/hitreg setSoundRecencyThreshold 0");
+        return 1;
+    }
+
+    public static int setApproachHitboxRange(int value) {
+        Settings.setInt("approach_hitbox_range", value);
+        message("approach hitbox range §7set to §f" + value, "/hitreg setApproachHitboxRange 0");
+        return 1;
+    }
+
     public static String onOrOff(boolean setting) {
         return setting ? "§aon§7" : "§coff§7";
+    }
+
+    private static int showColor(Style style) {
+        message(style.name() + " current color: #" + style.hex() + " opacity: " + style.opacity(), "hitreg color " + style.name());
+        return 1;
+    }
+
+    private static int setColor(CommandContext<FabricClientCommandSource> context, Style style, boolean hasOpacity) {
+        String oldHex = style.hex();
+        int oldOpacity = style.opacity();
+
+        String newHex = StringArgumentType.getString(context, "hex");
+        if (!isValidHex(newHex)) {
+            message("Invalid hexadecimal color", "hitreg color " + style.name());
+            return 1;
+        }
+
+        newHex = newHex.toUpperCase();
+
+        int newOpacity = hasOpacity ? IntegerArgumentType.getInteger(context, "opacity") : 255;
+        style.set(newHex, newOpacity);
+
+       message("Changed " + style.name() + " from #" + oldHex + " " + oldOpacity + " to #" + newHex + " " + newOpacity, "hitreg color " + style.name());
+        return 1;
+    }
+
+    private static boolean isValidHex(String hex) {
+        return hex.matches("^[0-9a-fA-F]{6}$");
     }
 }

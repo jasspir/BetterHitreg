@@ -8,7 +8,10 @@ public enum Setting {
     MUFFLE_AMOUNT("muffle_amount", "configure", "0"),
     SHARPEN_AMOUNT("sharpen_amount", "configure", "0"),
     METRONOME("metronome", "configure", "0"),
-    GRID_FLOOR("floor_grid_size", "configure", "0");
+    GRID_SIZE("floor_grid_size", "configure", "0"),
+    GRID_RANGE("floor_grid_range", "configure", "16"),
+    SOUND_RECENCY_THRESHOLD("sound_recency_threshold", "configure", "50"),
+    APPROACH_HITBOX_RANGE("approach_hitbox_range", "configure", "6");
 
     private final String key;
     private final String category;

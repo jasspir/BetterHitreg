@@ -8,7 +8,6 @@
     "AttackMixin",
     "ChunkMixin",
     "DamageMixin",
-    "EntityAccessor",
     "GlowMixin",
     "NetworkMixin",
     "ParticleMixin",

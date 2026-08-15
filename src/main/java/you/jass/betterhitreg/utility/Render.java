@@ -1,7 +1,6 @@
 package you.jass.betterhitreg.utility;
 
 //version 1.21.11+
-import net.minecraft.gizmos.GizmoStyle;
 import net.minecraft.gizmos.Gizmos;
 
 import net.minecraft.client.Camera;
@@ -12,69 +11,18 @@ import net.minecraft.world.phys.Vec3;
 
 import you.jass.betterhitreg.hitreg.Hitreg;
 import you.jass.betterhitreg.settings.Setting;
-import you.jass.betterhitreg.settings.Settings;
+import you.jass.betterhitreg.settings.Style;
 import you.jass.betterhitreg.settings.Toggle;
-
-import java.awt.*;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.*;
 
 public class Render {
-    private static int FAR_HITBOX = 0xFFFFFFFF;
-    private static int NEAR_HITBOX = 0xFFFFFFFF;
-    private static int FAR_CROSS = 0xFFFFFFFF;
-    private static int NEAR_CROSS = 0xFFFFFFFF;
-    private static int FAR_CROSS_WITH_HITBOX = 0xFFFFFFFF;
-    private static int NEAR_CROSS_WITH_HITBOX = 0xFFFFFFFF;
-    private static int FAR_SERVER_HITBOX = 0xFFFFFFFF;
-    private static int NEAR_SERVER_HITBOX = 0xFFFFFFFF;
-    private static int FAR_YOUR_REACH = 0xFFFFFFFF;
-    private static int NEAR_YOUR_REACH = 0xFFFFFFFF;
-    private static int FAR_THEIR_REACH = 0xFFFFFFFF;
-    private static int NEAR_THEIR_REACH = 0xFFFFFFFF;
-    private static int NEAR_YOUR_JUMP_RANGE = 0xFFFFFFFF;
-    private static int NEAR_THEIR_JUMP_RANGE = 0xFFFFFFFF;
-    private static int FAR_YOUR_JUMP_RANGE = 0xFFFFFFFF;
-    private static int FAR_THEIR_JUMP_RANGE = 0xFFFFFFFF;
-    public static int JUMP_RESET_GLOW = 0xFFFFFFFF;
-    public static int PERFECT_HIT_GLOW = 0xFFFFFFFF;
-
-    public static void updateColors() {
-        FAR_HITBOX = getColor("hitbox_far_color", "hitbox_far_opacity");
-        NEAR_HITBOX = getColor("hitbox_near_color", "hitbox_near_opacity");
-        FAR_CROSS = getColor("cross_far_color", "cross_far_opacity");
-        NEAR_CROSS = getColor("cross_near_color", "cross_near_opacity");
-        FAR_CROSS_WITH_HITBOX = getColor("cross_far_color_with_hitbox", "cross_with_hitbox_far_opacity");
-        NEAR_CROSS_WITH_HITBOX = getColor("cross_near_color_with_hitbox", "cross_with_hitbox_near_opacity");
-        FAR_SERVER_HITBOX = getColor("server_hitbox_far_color", "server_hitbox_far_opacity");
-        NEAR_SERVER_HITBOX = getColor("server_hitbox_near_color", "server_hitbox_near_opacity");
-        FAR_YOUR_REACH = getColor("your_reach_far_color", "your_reach_far_opacity");
-        NEAR_YOUR_REACH = getColor("your_reach_near_color", "your_reach_near_opacity");
-        FAR_THEIR_REACH = getColor("their_reach_far_color", "their_reach_far_opacity");
-        NEAR_THEIR_REACH = getColor("their_reach_near_color", "their_reach_near_opacity");
-        FAR_THEIR_JUMP_RANGE = getColor("their_jump_far_color", "their_jump_far_opacity");
-        NEAR_THEIR_JUMP_RANGE = getColor("their_jump_near_color", "their_jump_near_opacity");
-        NEAR_YOUR_JUMP_RANGE = getColor("your_jump_near_color", "your_jump_near_opacity");
-        FAR_YOUR_JUMP_RANGE = getColor("your_jump_far_color", "your_jump_far_opacity");
-        JUMP_RESET_GLOW = getColor("jump_reset_color", "jump_reset_opacity");
-        PERFECT_HIT_GLOW = getColor("perfect_hit_color", "perfect_hit_opacity");
-    }
-
-    public static int getColor(String colorKey, String opacityKey) {
-        String hex = Settings.get(colorKey);
-        int opacity = Settings.getInt(opacityKey);
-        if (hex == null) hex = "FFFFFF";
-        int alpha = Math.max(0, Math.min(255, opacity));
-        Color rgb = Color.decode("#" + hex.replace("#", ""));
-        Color argb = new Color(rgb.getRed(), rgb.getGreen(), rgb.getBlue(), alpha);
-        return argb.getRGB();
-    }
-
     public static void render(Camera camera) {
         if (client.player == null || client.level == null) return;
         boolean isHitbox = Toggle.RENDER_HITBOX.toggled();
         boolean isCross = Toggle.RENDER_CROSS.toggled();
         boolean isServerHitbox = Toggle.RENDER_SERVER_HITBOX.toggled();
+        boolean isApproachHitbox = Toggle.RENDER_APPROACH_HITBOX.toggled();
         boolean isYourReach = Toggle.RENDER_YOUR_REACH.toggled() && !inSky;
         boolean isTheirReach = Toggle.RENDER_THEIR_REACH.toggled() && !theirInSky;
         boolean isYourJump = Toggle.RENDER_YOUR_JUMP.toggled() && !inSky;
@@ -86,88 +34,96 @@ public class Render {
             if (isYourReach || isYourJump) {
                 Vec3 player = MultiVersion.getLerpedPosition(client.player);
                 Vec3 center = new Vec3(player.x, Hitreg.ground, player.z);
-                if (isYourReach) ring(camera, center, 3, 64, 3, FAR_YOUR_REACH);
-                if (isYourJump) ring(camera, center, 4, 64, 3, FAR_YOUR_JUMP_RANGE);
+                if (isYourReach) ring(camera, center, 3, 64, 3, Style.YOUR_REACH_FAR.argb());
+                if (isYourJump) ring(camera, center, 4, 64, 3, Style.YOUR_JUMP_FAR.argb());
             }
 
             return;
         }
 
-        if (isYourReach || isTheirReach || isYourJump || isTheirJump || isHitbox || isCross || isServerHitbox) {
-            Vec3 closest = getClosestPoint(client.player, target);
-            double distance = client.player.getEyePosition().distanceToSqr(closest);
+        if (isYourReach || isTheirReach || isYourJump || isTheirJump || isHitbox || isCross || isServerHitbox || isApproachHitbox) {
+            double distance = getDistance(client.player, target);
             boolean withinHitRange = distance <= 9;
             boolean withinJumpRange = distance <= 16;
 
             if (isYourReach || isYourJump) {
                 Vec3 player = MultiVersion.getLerpedPosition(client.player);
                 Vec3 center = new Vec3(player.x, Hitreg.ground, player.z);
-                if (isYourReach) ring(camera, center, 3, 64, 3, withinHitRange ? NEAR_YOUR_REACH : FAR_YOUR_REACH);
-                if (isYourJump) ring(camera, center, 4, 64, 3, withinJumpRange ? NEAR_YOUR_JUMP_RANGE : FAR_YOUR_JUMP_RANGE);
+                if (isYourReach) ring(camera, center, 3, 64, 3, withinHitRange ? Style.YOUR_REACH_NEAR.argb() : Style.YOUR_REACH_FAR.argb());
+                if (isYourJump) ring(camera, center, 4, 64, 3, withinJumpRange ? Style.YOUR_JUMP_NEAR.argb() : Style.YOUR_JUMP_FAR.argb());
             }
 
             if (isTheirReach || isTheirJump) {
                 Vec3 player = MultiVersion.getLerpedPosition(target);
                 Vec3 center = new Vec3(player.x, Hitreg.theirGround, player.z);
-                if (isTheirReach) ring(camera, center, 3, 64, 3, withinHitRange ? NEAR_THEIR_REACH : FAR_THEIR_REACH);
-                if (isTheirJump) ring(camera, center, 4, 64, 3, withinJumpRange ? NEAR_THEIR_JUMP_RANGE : FAR_THEIR_JUMP_RANGE);
+                if (isTheirReach) ring(camera, center, 3, 64, 3, withinHitRange ? Style.THEIR_REACH_NEAR.argb() : Style.THEIR_REACH_FAR.argb());
+                if (isTheirJump) ring(camera, center, 4, 64, 3, withinJumpRange ? Style.THEIR_JUMP_NEAR.argb() : Style.THEIR_JUMP_FAR.argb());
             }
 
             if (isHitbox) {
-                int color = withinHitRange ? NEAR_HITBOX : FAR_HITBOX;
-                if (Toggle.PERFECT_HIT_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastPerfectHit <= 500) color = PERFECT_HIT_GLOW;
-                else if (Toggle.JUMP_RESET_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastJumpReset <= 500) color = JUMP_RESET_GLOW;
+                int color = withinHitRange ? Style.HITBOX_NEAR.argb() : Style.HITBOX_FAR.argb();
+                if (Toggle.PERFECT_HIT_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastPerfectHit <= 500) color = Style.PERFECT_HIT.argb();
+                else if (Toggle.JUMP_RESET_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastJumpReset <= 500) color = Style.JUMP_RESET.argb();
                 box(camera, getBoundingBox(target), 3, color);
             }
 
             if (isCross && distance <= 100) {
-                int color = isHitbox || isServerHitbox ? (withinHitRange ? NEAR_CROSS_WITH_HITBOX : FAR_CROSS_WITH_HITBOX) : (withinHitRange ? NEAR_CROSS : FAR_CROSS);
-                cross(camera, closest, 3, 30, 0.005, color);
+                int color = isHitbox || isServerHitbox ? (withinHitRange ? Style.CROSS_NEAR_WITH_HITBOX.argb() : Style.CROSS_FAR_WITH_HITBOX.argb()) : (withinHitRange ? Style.CROSS_NEAR.argb() : Style.CROSS_FAR.argb());
+                cross(camera, getClosestPoint(client.player, target), 3, 30, 0.005, color);
             }
 
             if (isServerHitbox) {
-                int color = withinHitRange ? NEAR_SERVER_HITBOX : FAR_SERVER_HITBOX;
-                if (Toggle.PERFECT_HIT_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastPerfectHit <= 500) color = PERFECT_HIT_GLOW;
-                else if (Toggle.JUMP_RESET_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastJumpReset <= 500) color = JUMP_RESET_GLOW;
+                int color = withinHitRange ? Style.SERVER_HITBOX_NEAR.argb() : Style.SERVER_HITBOX_FAR.argb();
+                if (Toggle.PERFECT_HIT_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastPerfectHit <= 500) color = Style.PERFECT_HIT.argb();
+                else if (Toggle.JUMP_RESET_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastJumpReset <= 500) color = Style.JUMP_RESET.argb();
                 box(camera, target.getBoundingBox(), 3, color);
+            }
+
+            if (isApproachHitbox && distance >= 9 && distance <= Setting.APPROACH_HITBOX_RANGE.get() * Setting.APPROACH_HITBOX_RANGE.get()) {
+                int color = Style.APPROACH_HITBOX.argb();
+                double exp = ((distance - 9) / 9) * 0.5;
+                box(camera, getBoundingBox(target).inflate(exp, exp, exp), 3, color);
             }
         }
     }
 
     public static void renderFloor(Camera camera) {
         if (ground == Integer.MAX_VALUE) return;
+
+        boolean customGround = Toggle.CUSTOM_GROUND.toggled();
+        int step = (int) Setting.GRID_SIZE.get();
+
+        if (!customGround && step <= 0) return;
         double y = ground + 0.01;
 
-        if (Toggle.SOLID_FLOOR.toggled()) {
-            Vec3 position = camera.position();
-            int size = 512;
-            Vec3 v0 = new Vec3(position.x - size, y, position.z - size);
-            Vec3 v1 = new Vec3(position.x - size, y, position.z + size);
-            Vec3 v2 = new Vec3(position.x + size, y, position.z + size);
-            Vec3 v3 = new Vec3(position.x + size, y, position.z - size);
-            Gizmos.rect(v0, v1, v2, v3, GizmoStyle.fill(0xFF000000));
-        }
-
-        int step = (int) Setting.GRID_FLOOR.get();
-        if (step == 0) return;
-
         //version 1.21.10-
-        //Vec3 cameraPosition = camera.getPosition();
+        //Vec3 pos = camera.getPosition();
 
         //version 1.21.11+
-        Vec3 cameraPosition = camera.position();
+        Vec3 pos = camera.position();
 
-        double radius = 16;
+        if (Toggle.CUSTOM_GROUND.toggled()) {
+            int size = 512;
+            Vec3 v0 = new Vec3(pos.x - size, y, pos.z - size);
+            Vec3 v1 = new Vec3(pos.x - size, y, pos.z + size);
+            Vec3 v2 = new Vec3(pos.x + size, y, pos.z + size);
+            Vec3 v3 = new Vec3(pos.x + size, y, pos.z - size);
+            MultiVersion.render(v0, v1, v2, v3, Style.GROUND.argb());
+        }
 
-        int minX = (int) Math.floor((cameraPosition.x - radius) / step) * step;
-        int maxX = (int) Math.ceil ((cameraPosition.x + radius) / step) * step;
-        int minZ = (int) Math.floor((cameraPosition.z - radius) / step) * step;
-        int maxZ = (int) Math.ceil ((cameraPosition.z + radius) / step) * step;
+        if (step != 0) {
+            double radius = Setting.GRID_RANGE.get();
 
-        for (int x = minX; x <= maxX; x += step) {
-            for (int z = minZ; z <= maxZ; z += step) {
-                if (x < maxX) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x + step, y, z), 0, radius);
-                if (z < maxZ) drawLineIfVisible(camera, cameraPosition, new Vec3(x, y, z), new Vec3(x, y, z + step), 0, radius);
+            int minX = (int) Math.floor((pos.x - radius) / step) * step;
+            int maxX = (int) Math.ceil ((pos.x + radius) / step) * step;
+            int minZ = (int) Math.floor((pos.z - radius) / step) * step;
+            int maxZ = (int) Math.ceil ((pos.z + radius) / step) * step;
+
+            for (int x = minX; x <= maxX; x += step) {
+                for (int z = minZ; z <= maxZ; z += step) {
+                    if (x < maxX) drawLineIfVisible(camera, pos, new Vec3(x, y, z), new Vec3(x + step, y, z), 0, radius);
+                    if (z < maxZ) drawLineIfVisible(camera, pos, new Vec3(x, y, z), new Vec3(x, y, z + step), 0, radius);
+                }
             }
         }
     }
@@ -178,7 +134,7 @@ public class Render {
         double fadeProgress = Math.max(0, Math.min(1, (distToSeg - fadeStart) / (fadeEnd - fadeStart)));
         fadeProgress = fadeProgress * fadeProgress * (3 - 2 * fadeProgress);
         int alpha = (int) (255 * (1 - fadeProgress));
-        int color = (alpha << 24) | 0xFFFFFF;
+        int color = (alpha << 24) | (Style.GRID.rgb());
         line(camera, start, end, 3, color);
     }
 
@@ -341,6 +297,12 @@ public class Render {
         double closestZ = clamp(eye.z, box.min(Direction.Axis.Z), box.max(Direction.Axis.Z));
 
         return new Vec3(closestX, closestY, closestZ);
+    }
+
+    public static double getDistance(Entity entity1, Entity entity2) {
+        Vec3 eye = MultiVersion.getLerpedPosition(entity1).add(0, entity1.getEyeHeight(entity1.getPose()), 0);
+        Vec3 closest = getClosestPoint(entity1, entity2);
+        return eye.distanceToSqr(closest);
     }
 
     private static double clamp(double value, double min, double max) {

@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import you.jass.betterhitreg.hitreg.Hitreg;
+import you.jass.betterhitreg.settings.Style;
 import you.jass.betterhitreg.settings.Toggle;
 import you.jass.betterhitreg.utility.Render;
 
@@ -16,10 +17,8 @@ public abstract class GlowMixin {
     @Inject(method = "getTeamColor", at = @At("RETURN"), cancellable = true)
     public void glow(CallbackInfoReturnable<Integer> cir) {
         if (!Hitreg.withinFight || id != Hitreg.target.getId() || Toggle.RENDER_HITBOX.toggled() || Toggle.RENDER_SERVER_HITBOX.toggled()) return;
-
-        //this uses bgr instead of rgb for some reason so we convert it first
-        if (Toggle.PERFECT_HIT_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastPerfectHit <= 500) cir.setReturnValue((Render.PERFECT_HIT_GLOW & 0xFF00FF00) | ((Render.PERFECT_HIT_GLOW & 0xFF) << 16) | ((Render.PERFECT_HIT_GLOW >> 16) & 0xFF));
-        else if (Toggle.JUMP_RESET_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastJumpReset <= 500) cir.setReturnValue((Render.JUMP_RESET_GLOW & 0xFF00FF00) | ((Render.JUMP_RESET_GLOW & 0xFF) << 16) | ((Render.JUMP_RESET_GLOW >> 16) & 0xFF));
+        if (Toggle.PERFECT_HIT_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastPerfectHit <= 500) cir.setReturnValue(Style.PERFECT_HIT.argb());
+        else if (Toggle.JUMP_RESET_COLOR.toggled() && System.currentTimeMillis() - Hitreg.lastJumpReset <= 500) cir.setReturnValue(Style.JUMP_RESET.argb());
     }
 
     @Inject(method = "isCurrentlyGlowing", at = @At("RETURN"), cancellable = true)

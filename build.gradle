@@ -15,39 +15,6 @@ def mcIsAtLeast261 = {
     return a[0] >= 26
 }()
 
-if (mcIsAtLeast261) apply plugin: 'net.fabricmc.fabric-loom'
-else apply plugin: 'net.fabricmc.fabric-loom-remap'
-
-apply plugin: MultiVersionPlugin
-apply plugin: AutoVersionPlugin
-
-//the designated gradle version is 9.6.1, you can set it in gradle/wrapper/gradle-wrapper.properties
-//distributionUrl=https\://services.gradle.org/distributions/gradle-9.6.1-bin.zip
-//when the project is done building successfully, you can find the jar in build/libs
-
-//set the minecraft version, then run Tasks/build/autoVersion, it should be in the elephant on the right sidebar in IntelliJ
-//after it finishes, run Tasks/build/build, this should build the desired version
-//(when switching versions the first build may fail because gradle.properties updates mid-build, just run it again)
-autoversion {
-    modVersion = '1.0.6'
-    mavenGroup = 'you.jass'
-    archivesBaseName = 'BetterHitreg'
-    minecraftVersion = '26.2'
-    yarnMappings = 'auto'
-    loaderVersion = 'auto'
-    fabricVersion = 'auto'
-}
-
-version = project.mod_version
-group = project.maven_group
-
-base {
-    archivesName = project.archives_base_name
-}
-
-repositories {
-}
-
 //compares dotted versions numerically, so 26.1 > 1.21.11
 def isAtLeast = { String v ->
     def a = project.minecraft_version.toString().split(/\./).collect { it.isInteger() ? it.toInteger() : 0 }
@@ -65,6 +32,39 @@ def isUnobfuscated = mcIsAtLeast261
 //26.1+ uses java 25, 1.20.5+ uses java 21, older versions use java 17
 def targetJavaVersion = isUnobfuscated ? 25 : (isAtLeast('1.20.5') ? 21 : 17)
 def mixinJavaLevel = "JAVA_${targetJavaVersion}"
+
+if (mcIsAtLeast261) apply plugin: 'net.fabricmc.fabric-loom'
+else apply plugin: 'net.fabricmc.fabric-loom-remap'
+
+apply plugin: MultiVersionPlugin
+apply plugin: AutoVersionPlugin
+
+//the designated gradle version is 9.6.1, you can set it in gradle/wrapper/gradle-wrapper.properties
+//distributionUrl=https\://services.gradle.org/distributions/gradle-9.6.1-bin.zip
+//when the project is done building successfully, you can find the jar in build/libs
+
+//set the minecraft version, then run Tasks/build/autoVersion, it should be in the elephant on the right sidebar in IntelliJ
+//after it finishes, run Tasks/build/build, this should build the desired version
+//(when switching versions the first build may fail because gradle.properties updates mid-build, just run it again)
+autoversion {
+    modVersion = '1.0.7'
+    mavenGroup = 'you.jass'
+    archivesBaseName = 'BetterHitreg'
+    minecraftVersion = '26.2'
+    yarnMappings = 'auto'
+    loaderVersion = '0.19.0'
+    fabricVersion = 'auto'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+}
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -99,7 +99,10 @@ processResources {
                 "class_tweaker": "${classTweaker}"
     }
 
-    filesMatching("betterhitreg.mixins.json") {
+    String name = project.archives_base_name;
+    name = name.toLowerCase();
+
+    filesMatching("${name}.mixins.json") {
         expand "mixin_java_level": mixinJavaLevel
     }
 }

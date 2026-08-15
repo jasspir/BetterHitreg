@@ -24,15 +24,16 @@ public enum Toggle {
     RENDER_HITBOX("renderHitbox", "render target hitbox", false),
     RENDER_CROSS("renderCross", "render target cross", false),
     RENDER_SERVER_HITBOX("RenderServerHitbox", "render server hitbox", false),
+    RENDER_APPROACH_HITBOX("RenderApproachHitbox", "render approach hitbox", false),
     RENDER_YOUR_REACH("RenderYourReach", "render your reach", false),
     RENDER_THEIR_REACH("RenderTheirReach", "render their reach", false),
     RENDER_YOUR_JUMP("RenderYourJump", "render your jump range", false),
     RENDER_THEIR_JUMP("RenderTheirJump", "render their jump range", false),
     PERFECT_HIT_COLOR("PerfectHitColor", "color first tick hits", false),
     JUMP_RESET_COLOR("JumpResetColor", "color jump resets", false),
-    JUMP_RESET_SOUND("JumpResetSound", "play sound on jump resets", false),
-    VOID_WORLD("VoidWorld", "unrender world", false),
-    SOLID_FLOOR("SolidFloor", "render solid floor", false);
+    ALERT_JUMP_RESETS("AlertJumpResets", "alert jump resets", false),
+    VOID_WORLD("VoidWorld", "void world", false),
+    CUSTOM_GROUND("CustomGround", "custom ground", false);
 
     private final String key;
     private final String label;
@@ -68,8 +69,8 @@ public enum Toggle {
         switch (this) {
             case SAFE_REGS_ONLY -> MultiVersion.message("§7first hits " + (value ? "will no longer" : "will now") + " use custom hitreg", command);
             case IGNORE_SHIELD_HOLDERS -> MultiVersion.message("§7players with a shield (blocking or not) " + (value ? "will no longer" : "will now") + " be affected by custom hitreg", command);
-            case RENDER_HITBOX, RENDER_CROSS, RENDER_SERVER_HITBOX, RENDER_YOUR_REACH, RENDER_THEIR_REACH, RENDER_YOUR_JUMP, RENDER_THEIR_JUMP,
-                 PERFECT_HIT_COLOR, JUMP_RESET_COLOR -> MultiVersion.message("§7colors can be edited via §fconfigs/Hitreg.properties §7in your minecraft instance folder", command);
+            case RENDER_HITBOX, RENDER_CROSS, RENDER_SERVER_HITBOX, RENDER_APPROACH_HITBOX, RENDER_YOUR_REACH, RENDER_THEIR_REACH, RENDER_YOUR_JUMP, RENDER_THEIR_JUMP, PERFECT_HIT_COLOR, JUMP_RESET_COLOR, CUSTOM_GROUND -> MultiVersion.message("§7colors can be edited via §f/hitreg color <key> <hex> <opacity>", command);
+            case VOID_WORLD -> MultiVersion.message("§7this feature may not work if you're using render mods or a modded client", command);
         }
 
         return value;

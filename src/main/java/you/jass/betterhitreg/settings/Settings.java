@@ -25,16 +25,16 @@ public class Settings {
             defaults.setProperty(toggle.key(), String.valueOf(toggle.defaultValue()));
         }
 
-        for (Color color : Color.values()) {
-            categories.put(color.colorKey(), color.category());
-            defaults.setProperty(color.colorKey(), color.hex());
-            categories.put(color.opacityKey(), color.category());
-            defaults.setProperty(color.opacityKey(), String.valueOf(color.opacity()));
+        for (Style style : Style.values()) {
+            categories.put(style.colorKey(), style.category());
+            defaults.setProperty(style.colorKey(), style.hex());
+            categories.put(style.opacityKey(), style.category());
+            defaults.setProperty(style.opacityKey(), String.valueOf(style.opacity()));
         }
 
         properties.putAll(defaults);
         load();
-        Render.updateColors();
+        Style.updateAll();
     }
 
     public static int getHitreg() {

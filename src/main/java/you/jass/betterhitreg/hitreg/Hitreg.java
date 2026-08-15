@@ -14,7 +14,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import you.jass.betterhitreg.settings.Commands;
-import you.jass.betterhitreg.settings.Setting;
 import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.settings.Toggle;
 import you.jass.betterhitreg.ui.UIUtils;
@@ -121,16 +120,24 @@ public class Hitreg {
         if (client.options.keyJump.isDown() && MultiVersion.isOnGround(client.player)) lastTickJumped = tick;
         if (client.options.keyDown.isDown()) lastTickBacked = tick;
 
-        //if the last time you were damaged was 5 ticks ago
-        if (tick - lastTickHit == 5) {
+        //if the last time you were damaged was 3 tick ago and you werent moving backward
+        if (tick - lastTickHit == 3 && tick - lastTickBacked > 5) {
             int jumpReset = lastTickJumped - lastTickHit;
             if (jumpReset >= -1 && jumpReset <= 1) {
                 //landed
                 lastJumpReset = System.currentTimeMillis();
-                if (Toggle.JUMP_RESET_SOUND.toggled()) client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1));
+                if (Toggle.ALERT_JUMP_RESETS.toggled()) {
+                    if (jumpReset == -1) message("Jump Reset §7was 1 tick before you were hit §a(landed)", "/hitreg alertjumpresets");
+                    else if (jumpReset == 0) message("Jump Reset §7was on the tick you were hit §a(landed)", "/hitreg alertjumpresets");
+                    else message("Jump Reset §7was 1 tick after you were hit §a(landed)", "/hitreg alertjumpresets");
+                }
             }
-            else if (tick - lastTickBacked > 10 && jumpReset >= -3 && jumpReset <= 3) {
+            else if (jumpReset >= -3 && jumpReset <= 3) {
                 //missed
+                if (Toggle.ALERT_JUMP_RESETS.toggled()) {
+                    if (jumpReset < 0) message("Jump Reset §7was " + Math.abs(jumpReset) + " ticks before you were hit §c(missed)", "/hitreg alertjumpresets");
+                    else message("Jump Reset §7was " + jumpReset + " ticks after you were hit §c(missed)", "/hitreg alertjumpresets");
+                }
             }
         }
 
@@ -154,8 +161,8 @@ public class Hitreg {
 
                     if (Toggle.ALERT_FIGHTS.toggled()) {
                         message("fight §7took §f" + formatTime(duration) + " §7(#" + fightsThisSession + "/#" + Settings.getInt("total_fights") + ")", "/hitreg alertDelays");
-                        if (yourHits != 0 && yourSwings != 0) message("Your §7Accuracy: §f" + Math.round((((float) yourHits / yourSwings) * 100)) + "% §7(" + yourHits + "/" + yourSwings + ")", "");
-                        if (theirHits != 0 && theirSwings != 0) message("Their §7Accuracy: §f" + Math.round((((float) theirHits / theirSwings) * 100)) + "% §7(" + theirHits + "/" + theirSwings + ")", "");
+                        if (yourHits != 0 && yourSwings != 0) message("Your §7Accuracy: §f" + Math.round((((float) yourHits / yourSwings) * 100)) + "% §7(" + yourHits + "/" + yourSwings + ")", "/hitreg alertDelays");
+                        if (theirHits != 0 && theirSwings != 0) message("Their §7Accuracy: §f" + Math.round((((float) theirHits / theirSwings) * 100)) + "% §7(" + theirHits + "/" + theirSwings + ")", "/hitreg alertDelays");
                     }
                 }
             }
