@@ -1,3 +1,7 @@
+### Major thanks to @Flxme for porting the mod to 26+!
+
+### Join the discord: https://discord.gg/qWuBQ2Qt4P (bug reports & suggestions)
+
 ## Overview
 BetterHitreg is an **open source** client-side Fabric mod for Minecraft **1.19.4 – 26.2** that registers hits **before the server** making it feel as if you were low ping
 
