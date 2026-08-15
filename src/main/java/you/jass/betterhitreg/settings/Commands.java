@@ -149,13 +149,13 @@ public class Commands {
 
     public static int setSoundRecencyThreshold(int value) {
         Settings.setInt("sound_recency_threshold", value);
-        message("sound recency threshold §7set to §f" + value, "/hitreg setSoundRecencyThreshold 0");
+        message("sound recency threshold §7set to §f" + value + " §7(default is 50)", "/hitreg setSoundRecencyThreshold 50");
         return 1;
     }
 
     public static int setApproachHitboxRange(int value) {
         Settings.setInt("approach_hitbox_range", value);
-        message("approach hitbox range §7set to §f" + value, "/hitreg setApproachHitboxRange 0");
+        message("approach hitbox range §7set to §f" + value + " §7(default is 6)", "/hitreg setApproachHitboxRange 6");
         return 1;
     }
 

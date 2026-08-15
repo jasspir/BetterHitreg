@@ -240,7 +240,6 @@ public class MultiVersion {
     public static void message(String message, String command) {
         boolean settingHitreg = !command.contains("reset") && command.contains("set");
         Component hoverText = Component.literal("§7Click to " + (settingHitreg ? "set" :  "toggle"));
-        if (command.equals("/hitreg")) hoverText = Component.literal("§7Click to configure");
 
         //version 1.21.4-
 //        ClickEvent clickEvent = new ClickEvent(!settingHitreg ? ClickEvent.Action.RUN_COMMAND : ClickEvent.Action.SUGGEST_COMMAND, command);
