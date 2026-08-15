@@ -14,12 +14,11 @@ package you.jass.betterhitreg.utility;
 
 //version 26+
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
 //version 1.21.11+
-import net.minecraft.gizmos.Gizmos;
-import net.minecraft.gizmos.GizmoStyle;
+//import net.minecraft.gizmos.Gizmos;
+//import net.minecraft.gizmos.GizmoStyle;
 
 //version 1.21.10-
 //import net.minecraft.client.renderer.RenderType;
