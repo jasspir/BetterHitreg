@@ -78,11 +78,13 @@ public class Hit {
     public void load() {
         shouldKnockback = !tooEarlyForSpecial && wasSprinting && sprintWasReset;
         shouldCrit = !tooEarlyForSpecial && !shouldKnockback && wasFalling && !wasOnGround && !wasClimbing && !wasTouchingWater && !wasInVehicle && !wasBlind;
+
         //version 1.21.1-
         //shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast;
 
         //version 1.21.2+
         shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast && !wasMovingForward;
+
         shouldPick = !shouldKnockback && !shouldCrit && !shouldSweep;
         shouldFullPick = !tooEarlyForSpecial && shouldPick;
         shouldHalfPick = !shouldFullPick && shouldPick;
@@ -107,7 +109,7 @@ public class Hit {
         if (target == null) return;
         updateSettings();
 
-        if (shouldAnimate) target.handleDamageEvent(new OnlyAnimate(target.damageSources().generic()));
+        if (shouldAnimate) {target.handleDamageEvent(new OnlyAnimate(target.damageSources().generic()));
 
         if (shouldMakeSound) {
             Vec3 location = getLerpedPosition(target);

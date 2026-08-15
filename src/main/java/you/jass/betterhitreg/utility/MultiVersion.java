@@ -13,6 +13,8 @@ package you.jass.betterhitreg.utility;
 //import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 
 //version 26.1+
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
 //version 1.21.11+
@@ -29,6 +31,7 @@ import net.minecraft.gizmos.GizmoStyle;
 //import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 //import com.mojang.blaze3d.vertex.Tesselator;
 //import com.mojang.blaze3d.vertex.VertexFormat;
+//import net.minecraft.client.renderer.GameRenderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -267,11 +270,11 @@ public class MultiVersion {
     public static boolean hasSharpness() {
         if (client.player.getMainHandItem().isEnchanted()) {
             //version 1.20.4-
-            //for (Tag enchantment : client.player.getMainHandItem().getEnchantmentTags()) {
-            //if (enchantment.getAsString().contains("sharpness")) {
-            //return true;
-            //}
-            //}
+//            for (net.minecraft.nbt.Tag enchantment : client.player.getMainHandItem().getEnchantmentTags()) {
+//            if (enchantment.getAsString().contains("sharpness")) {
+//            return true;
+//            }
+//            }
 
             //version 1.20.5+
             for (Holder<Enchantment> enchantment : client.player.getMainHandItem().getEnchantments().keySet()) {

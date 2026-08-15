@@ -1,9 +1,13 @@
 package you.jass.betterhitreg.mixin;
 
+//version 1.20.2+
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
+
+//version 26+
+import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
+
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
-import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.culling.Frustum;
 import org.joml.Matrix4fc;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,17 +29,22 @@ public class ChunkMixin {
 //    @Shadow
 //    private ObjectArrayList<SectionRenderDispatcher.RenderSection> visibleSections;
 
-    //version 1.21.11-
+    //version 1.20.1-
 //    @Inject(method = "applyFrustum", at = @At("TAIL"))
 //    private void onApplyFrustum(Frustum frustum, CallbackInfo ci) {
 //        if (Toggle.VOID_WORLD.toggled() && Hitreg.client.player != null && Hitreg.client.level != null) {
 //            //version 1.20.1-
 //            //renderChunksInFrustum.clear();
-//
-//            //version 1.20.2+
-//            visibleSections.clear();
 //        }
 //    }
+
+    //version 1.20.2 - 1.21.11
+    @Inject(method = "applyFrustum", at = @At("TAIL"))
+    private void onApplyFrustum(Frustum frustum, CallbackInfo ci) {
+        if (Toggle.VOID_WORLD.toggled() && Hitreg.client.player != null && Hitreg.client.level != null) {
+            visibleSections.clear();
+        }
+    }
 
     //version 26+
     @Inject(method = "prepareChunkRenders", at = @At("HEAD"))

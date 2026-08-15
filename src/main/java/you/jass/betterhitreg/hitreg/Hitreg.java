@@ -120,7 +120,7 @@ public class Hitreg {
         if (client.options.keyJump.isDown() && MultiVersion.isOnGround(client.player)) lastTickJumped = tick;
         if (client.options.keyDown.isDown()) lastTickBacked = tick;
 
-        //if the last time you were damaged was 3 tick ago and you werent moving backward
+        //if the last time you were damaged was 3 ticks ago and you weren't moving backward
         if (tick - lastTickHit == 3 && tick - lastTickBacked > 5) {
             int jumpReset = lastTickJumped - lastTickHit;
             if (jumpReset >= -1 && jumpReset <= 1) {
