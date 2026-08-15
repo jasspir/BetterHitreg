@@ -109,7 +109,7 @@ public class Hit {
         if (target == null) return;
         updateSettings();
 
-        if (shouldAnimate) {target.handleDamageEvent(new OnlyAnimate(target.damageSources().generic()));
+        if (shouldAnimate) target.handleDamageEvent(new OnlyAnimate(target.damageSources().generic()));
 
         if (shouldMakeSound) {
             Vec3 location = getLerpedPosition(target);
