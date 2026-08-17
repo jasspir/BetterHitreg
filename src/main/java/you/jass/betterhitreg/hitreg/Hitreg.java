@@ -161,8 +161,8 @@ public class Hitreg {
 
                     if (Toggle.ALERT_FIGHTS.toggled()) {
                         message("fight §7took §f" + formatTime(duration) + " §7(#" + fightsThisSession + "/#" + Settings.getInt("total_fights") + ")", "/hitreg alertDelays");
-                        if (yourHits != 0 && yourSwings != 0) message("Your §7Accuracy: §f" + Math.round((((float) yourHits / yourSwings) * 100)) + "% §7(" + yourHits + "/" + yourSwings + ")", "/hitreg alertDelays");
-                        if (theirHits != 0 && theirSwings != 0) message("Their §7Accuracy: §f" + Math.round((((float) theirHits / theirSwings) * 100)) + "% §7(" + theirHits + "/" + theirSwings + ")", "/hitreg alertDelays");
+                        if (yourHits != 0 && yourSwings != 0) message("Your §7Accuracy: §f" + Math.min(Math.round((((float) yourHits / yourSwings) * 100)), 100) + "% §7(" + yourHits + "/" + yourSwings + ")", "/hitreg alertDelays");
+                        if (theirHits != 0 && theirSwings != 0) message("Their §7Accuracy: §f" + Math.min(Math.round((((float) theirHits / theirSwings) * 100)), 100) + "% §7(" + theirHits + "/" + theirSwings + ")", "/hitreg alertDelays");
                     }
                 }
             }
