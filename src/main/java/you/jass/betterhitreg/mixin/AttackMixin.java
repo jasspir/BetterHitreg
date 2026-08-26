@@ -54,6 +54,7 @@ public abstract class AttackMixin {
         hit.wasHitByAnother = target.invulnerableTime > 10 && sinceLastHit >= 1000;
         hit.wasInvisible = target.isInvisible();
 
+
         if (!hitEarly) {
             hitWasFarFromPrevious = lastAttackLocation.distanceToSqr(MultiVersion.getBasePosition(client.player)) >= 2500;
             if (!fighting) fightStartedAt = System.currentTimeMillis();
@@ -64,7 +65,9 @@ public abstract class AttackMixin {
             lastAttackLocation = MultiVersion.getBasePosition(client.player);
             lastAttack = System.currentTimeMillis();
             lastTarget = target.getId();
-            sprintIsReset = false;
+            usedItem = false;
+            lastAttackTick = tick;
+            lastHitWasSpecial = !hit.tooEarlyForSpecial;
             alreadyAnimated = false;
             alreadyKnockedBack = false;
             yourHits++;

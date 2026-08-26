@@ -78,10 +78,11 @@ public class Hitreg {
     public static int yourHits;
     public static int theirHits;
     public static boolean wasSwinging;
+    public static boolean wasCrouching;
+    public static int lastAttackTick;
+    public static boolean usedItem;
+    public static boolean lastHitWasSpecial;
     public static boolean tutorialAlreadySeen;
-    public static int tickWorldLoaded;
-
-    //TODO make opponent swing start fight
 
     public static void tick() {
         if (client.player == null || client.level == null) return;
@@ -107,8 +108,24 @@ public class Hitreg {
         //forward input represents a real sprint reset; otherwise the next hit sounds like a
         //sprint hit even though sprint was never reset.
         boolean movingForward = client.options.keyUp.isDown();
-        if (movingForward && !wasMovingForward) sprintIsReset = true;
+        if (movingForward && !wasMovingForward) {
+            sprintIsReset = true;
+            usedItem = true;
+        }
         wasMovingForward = movingForward;
+
+        //when the player gets out of the shifting position their sprint resets
+        boolean crouching = client.player.isCrouching();
+        if (!crouching && wasCrouching) {
+            sprintIsReset = true;
+            usedItem = true;
+        }
+        wasCrouching = crouching;
+
+        //if the player uses an item 1-2 ticks after they hit, they maintain their sprint
+        //if forward is never let go, pick hits no longer end their sprint
+        if (tick - lastAttackTick <= 2) if (client.player.isUsingItem()) usedItem = true;
+        else if (sprintIsReset && !usedItem && lastHitWasSpecial) sprintIsReset = false;
 
         boolean swinging = client.options.keyAttack.isDown();
         if (swinging && !wasSwinging) yourSwings++;
