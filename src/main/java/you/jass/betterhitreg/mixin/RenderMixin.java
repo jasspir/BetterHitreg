@@ -21,14 +21,17 @@ import static you.jass.betterhitreg.hitreg.Hitreg.*;
 public abstract class RenderMixin {
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
     private void entity(Entity entity, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir) {
-        if (entity instanceof Player || entity instanceof Display.TextDisplay) {
-            if (!shouldRender(entity)) cir.setReturnValue(false);
+        if (client.player == null) {
+            cir.setReturnValue(true);
+            return;
         }
+
+        if (Toggle.HIDE_OTHER_FIGHTS.toggled()) cir.setReturnValue(shouldRenderPlayer(entity));
     }
 
     @Unique
-    private boolean shouldRender(Entity entity) {
-        if (!Toggle.HIDE_OTHER_FIGHTS.toggled() || client.player == null || entity.getId() == lastTarget || !Hitreg.withinFight || System.currentTimeMillis() - lastAttack > 5000) return true;
+    private boolean shouldRenderPlayer(Entity entity) {
+        if (!(entity instanceof Player || entity instanceof Display.TextDisplay) || entity.getId() == lastTarget || !Hitreg.withinFight || System.currentTimeMillis() - lastAttack > 5000) return true;
         Vec3 position = MultiVersion.getBasePosition(entity);
         return distanceFromPlayer(position) <= 5 || distanceFromTarget(position) <= 5 || distanceToTarget() > 10;
     }

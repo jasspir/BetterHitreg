@@ -25,7 +25,7 @@ public enum Style {
     JUMP_RESET("FFFF00", 255, "render"),
     PERFECT_HIT("00FF00", 255, "render"),
     GRID("FFFFFF", 255, "render"),
-    GROUND("000000", 255, "render"),
+    GROUND("101010", 255, "render"),
     BACKGROUND("000000", 230, "ui"),
     BORDER("646464", 255, "ui"),
     TEXT("DEDEDE", 255, "ui"),

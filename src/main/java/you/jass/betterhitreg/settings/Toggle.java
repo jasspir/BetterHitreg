@@ -6,10 +6,12 @@ public enum Toggle {
     TOGGLE("toggle", "custom hitreg", true),
     SAFE_REGS_ONLY("safeRegsOnly", "safe regs only", true),
     IGNORE_SHIELD_HOLDERS("ignoreShieldHolders", "ignore shield holders", false),
+    DEBUG_INPUTS("DebugInputs", "debug inputs", false),
     ALERT_DELAYS("alertDelays", "alert delays", false),
     ALERT_GHOSTS("alertGhosts", "alert ghosts", false),
     ALERT_INCONSISTENCIES("alertInconsistencies", "alert inconsistencies", false),
     ALERT_FIGHTS("alertFights", "alert fights", false),
+    ALERT_JUMP_RESETS("AlertJumpResets", "alert jump resets", false),
     LEGACY_SOUNDS("legacySounds", "1.8 sounds", false),
     HIDE_ANIMATIONS("hideAnimations", "hide animations", false),
     HIDE_ARMOR("hideArmor", "hide armor", false),
@@ -31,7 +33,6 @@ public enum Toggle {
     RENDER_THEIR_JUMP("RenderTheirJump", "render their jump range", false),
     PERFECT_HIT_COLOR("PerfectHitColor", "color first tick hits", false),
     JUMP_RESET_COLOR("JumpResetColor", "color jump resets", false),
-    ALERT_JUMP_RESETS("AlertJumpResets", "alert jump resets", false),
     VOID_WORLD("VoidWorld", "void world", false),
     CUSTOM_GROUND("CustomGround", "custom ground", false);
 

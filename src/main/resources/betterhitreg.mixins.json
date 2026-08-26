@@ -8,6 +8,7 @@
     "AttackMixin",
     "ChunkMixin",
     "DamageMixin",
+    "GLFWMixin",
     "GlowMixin",
     "NetworkMixin",
     "ParticleMixin",

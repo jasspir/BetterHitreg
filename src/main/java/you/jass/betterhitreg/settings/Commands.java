@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.network.chat.Component;
+import you.jass.betterhitreg.BetterHitreg;
 import you.jass.betterhitreg.ui.UIScreen;
 import you.jass.betterhitreg.utility.MultiVersion;
 import you.jass.betterhitreg.utility.Scheduler;
@@ -100,7 +101,7 @@ public class Commands {
     }
 
     public static String getUIKey() {
-        return you.jass.betterhitreg.BetterHitreg.uiKey.saveString()
+        return BetterHitreg.uiKey.saveString()
                 .replace("key.keyboard.", "")
                 .replace("key.mouse.", "")
                 .replace(".", " ")

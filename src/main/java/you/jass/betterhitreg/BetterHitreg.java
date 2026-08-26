@@ -6,21 +6,24 @@ package you.jass.betterhitreg;
 //version 1.21.10 - 1.21.11
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 
-//version 26.1+
-//import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
-//import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-
 //version 1.21.11-
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+//import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
+//version 26+
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.settings.Style;
+import you.jass.betterhitreg.settings.Toggle;
+import you.jass.betterhitreg.utility.Input;
 import you.jass.betterhitreg.utility.MultiVersion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
+
 //version 1.21.9 - 1.21.10
 //import net.minecraft.resources.ResourceLocation;
 
@@ -52,6 +55,7 @@ public class BetterHitreg implements ModInitializer {
         Commands.initialize();
         Settings.initialize();
         Style.updateAll();
+        registerText();
         ClientTickEvents.START_CLIENT_TICK.register(client -> tick());
 
         //1.21.9 doesn't have worldrenderevents so we do it in WorldMixin
@@ -74,27 +78,6 @@ public class BetterHitreg implements ModInitializer {
         //version 26.2+
 //        LevelRenderEvents.END_MAIN.register(context -> {
 //            Render.render(context.gameRenderer().mainCamera());
-//        });
-
-        //version 1.19.4
-//        HudRenderCallback.EVENT.register((context, tickCounter) -> {
-//            if (client.level == null || client.font == null || (leftScore == 0 && rightScore == 0)) return;
-//            String scoreText = "Score: " + leftScore + " - " + rightScore;
-//            client.font.drawShadow(context, scoreText, 10, 10, 0xFFFFFFFF);
-//        });
-
-        //version 1.20 - 1.21.11
-        HudRenderCallback.EVENT.register((context, tickCounter) -> {
-            if (client.level == null || client.font == null || (leftScore == 0 && rightScore == 0)) return;
-            String scoreText = "Score: " + leftScore + " - " + rightScore;
-            context.drawString(client.font, scoreText, 10, 10, 0xFFFFFFFF);
-        });
-
-        //version 26.1+
-//        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("betterhitreg", "score"), (context, tickCounter) -> {
-//            if (client.level == null || client.font == null || (leftScore == 0 && rightScore == 0)) return;
-//            String scoreText = "Score: " + leftScore + " - " + rightScore;
-//            context.text(client.font, scoreText, 10, 10, 0xFFFFFFFF, true);
 //        });
 
         //version 1.21.8-
@@ -201,6 +184,77 @@ public class BetterHitreg implements ModInitializer {
 
             if (handSwitchCooldown > 0) handSwitchCooldown--;
             if (scoreCooldown > 0) scoreCooldown--;
+        });
+    }
+
+    public void registerText() {
+        //version 1.19.4
+        HudRenderCallback.EVENT.register((context, tickCounter) -> {
+            if (client.level == null) return;
+            if (leftScore != 0 || rightScore != 0){
+                client.font.drawShadow(context, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF);
+                client.font.drawShadow
+            }
+        });
+
+        //version 1.20 - 1.21.11
+        HudRenderCallback.EVENT.register((context, tickCounter) -> {
+            if (client.level == null) return;
+            if (leftScore != 0 || rightScore != 0) context.drawString(client.font, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF);
+        });
+
+        //version 26.1+
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("betterhitreg", "score"), (context, tickCounter) -> {
+            if (client.level == null) return;
+            if (leftScore != 0 || rightScore != 0) context.text(client.font, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF, true);
+        });
+
+        //version 1.19.4
+        HudRenderCallback.EVENT.register((context, tickCounter) -> {
+            if (client.level == null || !Toggle.DEBUG_INPUTS.toggled() || MultiVersion.isScreenOpen()) return;
+            int y = 1;
+            for (Input input : Input.values()) {
+                String value;
+                double ms = input.previousDuration / 1_000_000d;
+                String duration = ms < 10 ? String.format("%.2f", ms) : ms < 100 ? String.format("%.1f", ms) : String.format("%.0f", ms);
+                if (input == Input.MOUSE_DELTA_X || input == Input.MOUSE_DELTA_Y) value = String.valueOf(input.value);
+                else value = input.toggled ? "yes" : "no";
+                String string = "§f" + input.name + ": " + (input.toggled ? "§a" + value : "§c" + value) + " §7(" + "§e" + duration + "ms§7)" + " §7(" + (input.suspicious ? "§cfake" : "§areal") + "§7)";
+                client.font.drawShadow(context, string, 1, y, 0xFFFFFFFF);
+                y += 10;
+            }
+        });
+
+        //version 1.20 - 1.21.11
+        HudRenderCallback.EVENT.register((context, tickCounter) -> {
+            if (client.level == null || !Toggle.DEBUG_INPUTS.toggled() || MultiVersion.isScreenOpen()) return;
+            int y = 1;
+            for (Input input : Input.values()) {
+                String value;
+                double ms = input.previousDuration / 1_000_000d;
+                String duration = ms < 10 ? String.format("%.2f", ms) : ms < 100 ? String.format("%.1f", ms) : String.format("%.0f", ms);
+                if (input == Input.MOUSE_DELTA_X || input == Input.MOUSE_DELTA_Y) value = String.valueOf(input.value);
+                else value = input.toggled ? "yes" : "no";
+                String string = "§f" + input.name + ": " + (input.toggled ? "§a" + value : "§c" + value) + " §7(" + "§e" + duration + "ms§7)" + " §7(" + (input.suspicious ? "§cfake" : "§areal") + "§7)";
+                context.drawString(client.font, string, 1, y, 0xFFFFFFFF);
+                y += 10;
+            }
+        });
+
+        //version 26+
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("betterhitreg", "inputs"), (context, tickCounter) -> {
+            if (client.level == null || !Toggle.DEBUG_INPUTS.toggled() || MultiVersion.isScreenOpen()) return;
+            int y = 1;
+            for (Input input : Input.values()) {
+                String value;
+                double ms = input.previousDuration / 1_000_000d;
+                String duration = ms < 10 ? String.format("%.2f", ms) : ms < 100 ? String.format("%.1f", ms) : String.format("%.0f", ms);
+                if (input == Input.MOUSE_DELTA_X || input == Input.MOUSE_DELTA_Y) value = String.valueOf(input.value);
+                else value = input.toggled ? "yes" : "no";
+                String string = "§f" + input.name + ": " + (input.toggled ? "§a" + value : "§c" + value) + " §7(" + "§e" + duration + "ms§7)" + " §7(" + (input.suspicious ? "§cfake" : "§areal") + "§7)";
+                context.text(client.font, string, 1, y, 0xFFFFFFFF);
+                y += 10;
+            }
         });
     }
 }

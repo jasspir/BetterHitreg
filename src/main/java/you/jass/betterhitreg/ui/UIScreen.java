@@ -74,7 +74,7 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter,
                 panelHeightCenter - halfPanelHeight + 10,
-                font, "BetterHitreg v1.0.7 (" + MultiVersion.getVersion() + ")",
+                font, "BetterHitreg v1.0.8-BETA (" + MultiVersion.getVersion() + ")",
                 header, true, true
         ));
 
@@ -125,6 +125,16 @@ public class UIScreen extends Screen {
                 panelWidthCenter - column1Start,
                 panelHeightCenter - rowStart + verticalGap * 6,
                 10, horizontalGap,
+                font, "Debug Inputs",
+                checkbox, true,
+                Toggle.DEBUG_INPUTS.toggled(),
+                checked -> Toggle.DEBUG_INPUTS.toggle()
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column1Start,
+                panelHeightCenter - rowStart + verticalGap * 7,
+                10, horizontalGap,
                 font, "Alert Delays (" + Hitreg.last100Regs.getAverageDelay() + "ms)",
                 checkbox, true,
                 Toggle.ALERT_DELAYS.toggled(),
@@ -133,7 +143,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 7,
+                panelHeightCenter - rowStart + verticalGap * 8,
                 10, horizontalGap,
                 font, "Alert Ghosts (" + Hitreg.last100Regs.getGhostRatio() + "%)",
                 checkbox, true,
@@ -143,7 +153,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 8,
+                panelHeightCenter - rowStart + verticalGap * 9,
                 10, horizontalGap,
                 font, "Alert Misplaces (" + Hitreg.last100Regs.getInconsistencyRatio() + "%)",
                 checkbox, true,
@@ -153,7 +163,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 9,
+                panelHeightCenter - rowStart + verticalGap * 10,
                 10, horizontalGap,
                 font, "Alert Fight Statistics",
                 checkbox, true,
@@ -163,7 +173,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 10,
+                panelHeightCenter - rowStart + verticalGap * 11,
                 10, horizontalGap,
                 font, "Alert Jump Resets",
                 checkbox, true,
@@ -173,14 +183,14 @@ public class UIScreen extends Screen {
 
         widgets.add(new UILabel(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 11,
+                panelHeightCenter - rowStart + verticalGap * 12,
                 font, "Audio",
                 category, false, false
         ));
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 12,
+                panelHeightCenter - rowStart + verticalGap * 13,
                 10, horizontalGap,
                 font, "Mute Other Fights",
                 checkbox, true,
@@ -190,7 +200,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 13,
+                panelHeightCenter - rowStart + verticalGap * 14,
                 10, horizontalGap,
                 font, "1.8 Hit Sounds",
                 checkbox, true,
@@ -200,7 +210,7 @@ public class UIScreen extends Screen {
 
         widgets.add(new UICheckbox(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 14,
+                panelHeightCenter - rowStart + verticalGap * 15,
                 10, horizontalGap,
                 font, "Mute Non-hit Sounds",
                 checkbox, true,
@@ -208,21 +218,28 @@ public class UIScreen extends Screen {
                 checked -> Toggle.SILENCE_NON_HITS.toggle()
         ));
 
-        widgets.add(new UICheckbox(
+        widgets.add(new UILabel(
                 panelWidthCenter - column1Start,
-                panelHeightCenter - rowStart + verticalGap * 15,
-                10, horizontalGap,
-                font, "Mute Your Hits",
+                panelHeightCenter - rowStart + verticalGap * 16,
+                font, "Mute Hits",
+                checkbox, false, false
+        ));
+
+        widgets.add(new UICheckbox(
+                panelWidthCenter - column1Start + 75,
+                panelHeightCenter - rowStart + verticalGap * 16,
+                10, horizontalGap - 120,
+                font, "You",
                 checkbox, true,
                 Toggle.SILENCE_SELF.toggled(),
                 checked -> Toggle.SILENCE_SELF.toggle()
         ));
 
         widgets.add(new UICheckbox(
-                panelWidthCenter - column1Start,
+                panelWidthCenter - column1Start + 115,
                 panelHeightCenter - rowStart + verticalGap * 16,
-                10, horizontalGap,
-                font, "Mute Their Hits",
+                10, horizontalGap - 115,
+                font, "Them",
                 checkbox, true,
                 Toggle.SILENCE_THEM.toggled(),
                 checked -> Toggle.SILENCE_THEM.toggle()
