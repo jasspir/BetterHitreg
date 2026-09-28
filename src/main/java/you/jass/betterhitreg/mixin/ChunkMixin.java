@@ -46,9 +46,23 @@ public class ChunkMixin {
         }
     }
 
-    //version 26+
+    //version 26 - 26.2
     @Inject(method = "prepareChunkRenders", at = @At("HEAD"))
     private void onPrepareChunkRenders(Matrix4fc modelViewMatrix, CallbackInfoReturnable<ChunkSectionsToRender> cir) {
         if (Toggle.VOID_WORLD.toggled() && Hitreg.client.player != null && Hitreg.client.level != null) visibleSections.clear();
     }
+
+    //26.3 added a boolean parameter and an indirect variant, render picks one of the two each frame
+
+    //version 26.3+
+    //@Inject(method = "prepareChunkRenders", at = @At("HEAD"))
+    //private void onPrepareChunkRenders(Matrix4fc modelViewMatrix, boolean flag, CallbackInfoReturnable<ChunkSectionsToRender> cir) {
+    //    if (Toggle.VOID_WORLD.toggled() && Hitreg.client.player != null && Hitreg.client.level != null) visibleSections.clear();
+    //}
+
+    //version 26.3+
+    //@Inject(method = "prepareChunkRendersIndirect", at = @At("HEAD"))
+    //private void onPrepareChunkRendersIndirect(Matrix4fc modelViewMatrix, boolean flag, CallbackInfoReturnable<ChunkSectionsToRender> cir) {
+    //    if (Toggle.VOID_WORLD.toggled() && Hitreg.client.player != null && Hitreg.client.level != null) visibleSections.clear();
+    //}
 }

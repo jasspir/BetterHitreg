@@ -1,3 +1,4 @@
 classTweaker v2 official
 
 accessible method net/minecraft/world/entity/LivingEntity getHurtSound (Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent;
+accessible field net/minecraft/world/entity/Entity invulnerableTime I

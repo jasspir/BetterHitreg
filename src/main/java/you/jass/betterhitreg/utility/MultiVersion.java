@@ -31,6 +31,7 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 //import com.mojang.blaze3d.vertex.VertexFormat;
 //import net.minecraft.client.renderer.GameRenderer;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.gui.Font;
@@ -130,6 +131,9 @@ public class MultiVersion {
 
         //version 26.2
         //return "26.2";
+
+        //version 26.3
+        //return "26.3";
     }
 
     public static Vec3 getLerpedPosition(Entity entity) {
@@ -159,6 +163,16 @@ public class MultiVersion {
 
         //version 26.1+
         //return KeyMappingHelper.registerKeyMapping(key);
+    }
+
+    public static InputConstants.Type keyboardType() {
+        //26.3 replaced glfw with sdl and merged keysym and scancode into one keyboard type keyed by scancode
+
+        //version 26.2-
+        return InputConstants.Type.KEYSYM;
+
+        //version 26.3+
+        //return InputConstants.Type.KEYBOARD;
     }
 
     public static boolean isScreenOpen() {
