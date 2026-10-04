@@ -9,6 +9,7 @@ import you.jass.betterhitreg.settings.Toggle;
 import you.jass.betterhitreg.utility.HitTracker;
 import you.jass.betterhitreg.utility.MultiVersion;
 import you.jass.betterhitreg.utility.OnlyAnimate;
+import you.jass.betterhitreg.utility.PacketProcessor;
 import you.jass.betterhitreg.utility.Scheduler;
 
 import java.util.ArrayList;
@@ -96,6 +97,7 @@ public class Hit {
         //decide once at hit time whether the mod replaces the server's feedback, the target's blocking state may change before the server's packets arrive
         boolean handled = Hitreg.isToggled();
         Hitreg.lastSwingHandled = handled;
+        PacketProcessor.debug("attack " + type.toString().toLowerCase() + (handled ? ", custom hitreg playing" : ", custom hitreg not playing"));
 
         if (!tooEarlyForDamage) {
             HitTracker.add(this);

@@ -192,6 +192,8 @@ public class Hitreg {
             HitTracker.process();
         }
 
+        PacketProcessor.tick();
+
         //if the target moves backwards, they may be taking knockback
         if (targetTakingKnockback() && !alreadyKnockedBack) {
             long knockbackDelay = System.currentTimeMillis() - lastAttack;

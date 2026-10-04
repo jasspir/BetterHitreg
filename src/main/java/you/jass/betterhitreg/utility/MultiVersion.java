@@ -37,6 +37,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -185,6 +186,14 @@ public class MultiVersion {
 
         //version 1.21.11+
         return sound.getIdentifier() == null ? null : sound.getIdentifier().getPath();
+    }
+
+    public static String getSoundName(SoundEvent sound) {
+        //version 1.21.1-
+        //return sound.getLocation().toString();
+
+        //version 1.21.2+
+        return sound.location().toString();
     }
 
     public static boolean isOnGround(Entity entity) {

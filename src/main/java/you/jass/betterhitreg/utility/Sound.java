@@ -1,18 +1,23 @@
 package you.jass.betterhitreg.utility;
 
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import you.jass.betterhitreg.hitreg.HitType;
 import you.jass.betterhitreg.hitreg.Hitreg;
-import you.jass.betterhitreg.settings.Setting;
 import you.jass.betterhitreg.settings.Toggle;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.*;
 
 public class Sound {
-    public ClientboundSoundPacket packet;
+    //how far apart the server can send a hit's sounds and its damage event while still counting them as the same hit
+    public static final long HIT_WINDOW = 150;
+
+    public Packet<?> packet;
     public String sound;
     public Vec3 location;
     public SoundEvent event;
@@ -22,18 +27,40 @@ public class Sound {
     public boolean legacy;
     public boolean processed;
     public boolean skip;
+    public boolean heldForHit;
+    public Entity attachedTo;
+    public String reason = "";
 
-    public Sound(ClientboundSoundPacket packet) {
+    private Sound(Packet<?> packet, Holder<SoundEvent> holder, Vec3 location) {
         this.packet = packet;
-        this.sound = packet.getSound().unwrapKey().isPresent() ? packet.getSound().unwrapKey().get().toString() : "";
-        this.location = new Vec3(packet.getX(), packet.getY(), packet.getZ());
-        this.event = packet.getSound().value();
+        this.location = location;
+        this.event = holder.value();
 
-        //subtract 2 because we run this on the main thread which runs 1-5ms later than the network thread
-        this.timestamp = System.currentTimeMillis() - 2;
+        //servers like mcpvp send the sound event inline instead of by registry id, so it has no key, read the name off the event itself
+        this.sound = holder.unwrapKey().isPresent() ? holder.unwrapKey().get().toString() : MultiVersion.getSoundName(event);
 
-        this.legacy = packet.getSound().kind() == Holder.Kind.DIRECT;
+        //use the time the packet reached the network thread so it lines up with damage event timestamps
+        this.timestamp = PacketProcessor.receivedAt(packet);
+
+        this.legacy = holder.kind() == Holder.Kind.DIRECT;
         if (!legacy) this.modern = sound.contains("hurt") || sound.contains("player.attack");
+    }
+
+    public static Sound of(Packet<?> packet) {
+        if (packet instanceof ClientboundSoundPacket positioned) {
+            return new Sound(packet, positioned.getSound(), new Vec3(positioned.getX(), positioned.getY(), positioned.getZ()));
+        }
+
+        //some servers attach hit sounds to an entity instead of a position
+        if (packet instanceof ClientboundSoundEntityPacket attached && client.level != null) {
+            Entity entity = client.level.getEntity(attached.getId());
+            if (entity == null) return null;
+            Sound sound = new Sound(packet, attached.getSound(), MultiVersion.getBasePosition(entity));
+            sound.attachedTo = entity;
+            return sound;
+        }
+
+        return null;
     }
 
     public void register() {
@@ -45,7 +72,8 @@ public class Sound {
 
     public void play() {
         if (client.level == null) return;
-        client.level.playSeededSound(client.player, packet.getX(), packet.getY(), packet.getZ(), packet.getSound(), packet.getSource(), packet.getVolume(), packet.getPitch(), packet.getSeed());
+        if (packet instanceof ClientboundSoundPacket positioned) client.level.playSeededSound(client.player, positioned.getX(), positioned.getY(), positioned.getZ(), positioned.getSound(), positioned.getSource(), positioned.getVolume(), positioned.getPitch(), positioned.getSeed());
+        else if (packet instanceof ClientboundSoundEntityPacket attached) PacketProcessor.replay(attached);
     }
 
     public boolean nearPlayer() {
@@ -60,10 +88,6 @@ public class Sound {
         return nearPlayer() || nearTarget();
     }
 
-    public boolean wasRecent() {
-        return distanceFromTimestamp(System.currentTimeMillis()) <= Setting.SOUND_RECENCY_THRESHOLD.get();
-    }
-
     public long distanceFromTimestamp(long time) {
         return Math.abs(time - timestamp);
     }
@@ -76,16 +100,47 @@ public class Sound {
         if (timestamp - lastAttack > 1000) return false;
         long you = distanceFromTimestamp(lastAnimation);
         long them = distanceFromTimestamp(lastAttacked);
-        return you <= them && you <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : 50);
+        if (isTheirHitSound() || you > them && !isYourHitSound()) return false;
+        return you <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : 50);
     }
 
     public boolean wasFromThem() {
         long you = distanceFromTimestamp(lastAnimation);
         long them = distanceFromTimestamp(lastAttacked);
-        return them <= you && them <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : 50);
+        return !isYourHitSound() && them <= you && them <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : 50);
+    }
+
+    //attack sounds play at the attacker and hurt sounds at whoever was hurt, so when you trade hits
+    //the location still tells your hit's sounds apart from theirs even if the timing can't
+    public boolean isYourHitSound() {
+        if (sound.contains("player.attack")) return closerToYou();
+        if (sound.contains("hurt")) return closerToTarget();
+        return false;
+    }
+
+    public boolean isTheirHitSound() {
+        if (sound.contains("player.attack")) return closerToTarget();
+        if (sound.contains("hurt")) return closerToYou();
+        return false;
+    }
+
+    private boolean closerToYou() {
+        return distanceFromPlayer(location) + 1 < distanceFromTarget(location);
+    }
+
+    private boolean closerToTarget() {
+        return distanceFromTarget(location) + 1 < distanceFromPlayer(location);
     }
 
     public boolean couldBeFromYou() {
-        return timestamp - lastAttack <= 500 && Hitreg.withinFight && nearTarget();
+        return timestamp - lastAttack <= 500 && timestamp >= lastAttack && Hitreg.withinFight && nearTarget();
+    }
+
+    @Override
+    public String toString() {
+        String name = sound.replace("ResourceKey[minecraft:sound_event / ", "").replace("]", "").replace("minecraft:", "");
+        String side = closerToYou() ? "at you" : closerToTarget() ? "at target" : "between you";
+        if (attachedTo != null) side = "attached to " + (client.player != null && attachedTo.getId() == client.player.getId() ? "you" : target != null && attachedTo.getId() == target.getId() ? "target" : "entity " + attachedTo.getId());
+        return name + " (" + side + ") +" + (timestamp - lastAttack) + "ms after attack";
     }
 }

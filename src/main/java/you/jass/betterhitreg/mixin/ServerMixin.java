@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import you.jass.betterhitreg.utility.PacketProcessor;
 
@@ -31,7 +32,14 @@ public class ServerMixin {
 
     @Inject(method = "handleSoundEvent(Lnet/minecraft/network/protocol/game/ClientboundSoundPacket;)V", at = @At("HEAD"), cancellable = true)
     private void handleSoundEvent(ClientboundSoundPacket packet, CallbackInfo ci) {
-        if (!Minecraft.getInstance().isSameThread()) return;
-        if (!PacketProcessor.processSound(packet)) ci.cancel();
+        //stamp it on the network thread so its timing lines up with damage events
+        if (!Minecraft.getInstance().isSameThread()) PacketProcessor.stamp(packet);
+        else if (!PacketProcessor.processSound(packet)) ci.cancel();
+    }
+
+    @Inject(method = "handleSoundEntityEvent(Lnet/minecraft/network/protocol/game/ClientboundSoundEntityPacket;)V", at = @At("HEAD"), cancellable = true)
+    private void handleSoundEntityEvent(ClientboundSoundEntityPacket packet, CallbackInfo ci) {
+        if (!Minecraft.getInstance().isSameThread()) PacketProcessor.stamp(packet);
+        else if (!PacketProcessor.processSound(packet)) ci.cancel();
     }
 }

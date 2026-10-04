@@ -7,6 +7,7 @@ public enum Toggle {
     SAFE_REGS_ONLY("safeRegsOnly", "safe regs only", true),
     IGNORE_SHIELD_HOLDERS("ignoreShieldHolders", "ignore shield holders", false),
     DEBUG_INPUTS("DebugInputs", "debug inputs", false),
+    DEBUG_SOUNDS("debugSounds", "debug sounds", false),
     ALERT_DELAYS("alertDelays", "alert delays", false),
     ALERT_GHOSTS("alertGhosts", "alert ghosts", false),
     ALERT_INCONSISTENCIES("alertInconsistencies", "alert inconsistencies", false),
@@ -71,6 +72,7 @@ public enum Toggle {
             case SAFE_REGS_ONLY -> MultiVersion.message("§7first hits " + (value ? "will no longer" : "will now") + " use custom hitreg", command);
             case IGNORE_SHIELD_HOLDERS -> MultiVersion.message("§7players with a shield (blocking or not) " + (value ? "will no longer" : "will now") + " be affected by custom hitreg", command);
             case RENDER_HITBOX, RENDER_CROSS, RENDER_SERVER_HITBOX, RENDER_APPROACH_HITBOX, RENDER_YOUR_REACH, RENDER_THEIR_REACH, RENDER_YOUR_JUMP, RENDER_THEIR_JUMP, PERFECT_HIT_COLOR, JUMP_RESET_COLOR, CUSTOM_GROUND -> MultiVersion.message("§7colors can be edited via §f/hitreg color <key> <hex> <opacity>", command);
+            case DEBUG_SOUNDS -> MultiVersion.message("§7every hit sound near your fight " + (value ? "will now" : "will no longer") + " be logged to latest.log, possible doubles also show in chat", command);
             case VOID_WORLD -> MultiVersion.message("§7this feature may not work if you're using render mods or a modded client", command);
         }
 
