@@ -1,4 +1,4 @@
-### Major thanks to @Flxme for porting the mod to 26+!
+### Major thanks to @FlxmeMC for porting the mod to 26+!
 
 ### Join the discord: https://discord.gg/qWuBQ2Qt4P (bug reports & suggestions)
 
