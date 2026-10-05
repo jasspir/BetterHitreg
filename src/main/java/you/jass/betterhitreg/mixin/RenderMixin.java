@@ -19,8 +19,22 @@ import static you.jass.betterhitreg.hitreg.Hitreg.*;
 
 @Mixin(EntityRenderer.class)
 public abstract class RenderMixin {
+    //version 26.2-
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
     private void entity(Entity entity, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir) {
+        shouldRender(entity, cir);
+    }
+
+    //26.3 added a float parameter to shouldRender
+
+    //version 26.3+
+    //@Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
+    //private void entity(Entity entity, Frustum frustum, double x, double y, double z, float f, CallbackInfoReturnable<Boolean> cir) {
+    //    shouldRender(entity, cir);
+    //}
+
+    @Unique
+    private void shouldRender(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (client.player == null) {
             cir.setReturnValue(true);
             return;

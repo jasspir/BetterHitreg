@@ -30,7 +30,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 //version 1.21.11+
 import net.minecraft.resources.Identifier;
 
-import org.lwjgl.glfw.GLFW;
 import you.jass.betterhitreg.settings.Commands;
 import you.jass.betterhitreg.ui.UIScreen;
 import you.jass.betterhitreg.utility.Render;
@@ -83,38 +82,38 @@ public class BetterHitreg implements ModInitializer {
         //version 1.21.8-
 //        uiKey = MultiVersion.registerKey(new KeyMapping(
 //                "Open Hitreg Menu",
-//                InputConstants.Type.KEYSYM,
-//                GLFW.GLFW_KEY_H,
+//                MultiVersion.keyboardType(),
+//                InputConstants.KEY_H,
 //                "Hitreg"
 //        ));
 //        handKey = MultiVersion.registerKey(new KeyMapping(
 //                "Switch Hand",
-//                InputConstants.Type.KEYSYM,
-//                GLFW.GLFW_KEY_UNKNOWN,
+//                MultiVersion.keyboardType(),
+//                InputConstants.UNKNOWN.getValue(),
 //                "Hitreg"
 //        ));
 //        leftKey = MultiVersion.registerKey(new KeyMapping(
 //                "Increase Left Score",
-//                InputConstants.Type.KEYSYM,
-//                GLFW.GLFW_KEY_LEFT,
+//                MultiVersion.keyboardType(),
+//                InputConstants.KEY_LEFT,
 //                "Hitreg"
 //        ));
 //        rightKey = MultiVersion.registerKey(new KeyMapping(
 //                "Increase Right Score",
-//                InputConstants.Type.KEYSYM,
-//                GLFW.GLFW_KEY_RIGHT,
+//                MultiVersion.keyboardType(),
+//                InputConstants.KEY_RIGHT,
 //                "Hitreg"
 //        ));
 //        upKey = MultiVersion.registerKey(new KeyMapping(
 //                "Send Score to Chat",
-//                InputConstants.Type.KEYSYM,
-//                GLFW.GLFW_KEY_UP,
+//                MultiVersion.keyboardType(),
+//                InputConstants.KEY_UP,
 //                "Hitreg"
 //        ));
 //        downKey = MultiVersion.registerKey(new KeyMapping(
 //                "Reset Last Score",
-//                InputConstants.Type.KEYSYM,
-//                GLFW.GLFW_KEY_DOWN,
+//                MultiVersion.keyboardType(),
+//                InputConstants.KEY_DOWN,
 //                "Hitreg"
 //        ));
 
@@ -127,36 +126,36 @@ public class BetterHitreg implements ModInitializer {
         //version 1.21.9+
         uiKey = MultiVersion.registerKey(new KeyMapping(
                 "Open Hitreg Menu",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_H, category
+                MultiVersion.keyboardType(),
+                InputConstants.KEY_H, category
         ));
         handKey = MultiVersion.registerKey(new KeyMapping(
                 "Switch Hand",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UNKNOWN, category
+                MultiVersion.keyboardType(),
+                InputConstants.UNKNOWN.getValue(), category
         ));
         leftKey = MultiVersion.registerKey(new KeyMapping(
                 "Increase Left Score",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_LEFT,
+                MultiVersion.keyboardType(),
+                InputConstants.KEY_LEFT,
                 category
         ));
         rightKey = MultiVersion.registerKey(new KeyMapping(
                 "Increase Right Score",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_RIGHT,
+                MultiVersion.keyboardType(),
+                InputConstants.KEY_RIGHT,
                 category
         ));
         upKey = MultiVersion.registerKey(new KeyMapping(
                 "Send Score to Chat",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_UP,
+                MultiVersion.keyboardType(),
+                InputConstants.KEY_UP,
                 category
         ));
         downKey = MultiVersion.registerKey(new KeyMapping(
                 "Reset Score",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_DOWN,
+                MultiVersion.keyboardType(),
+                InputConstants.KEY_DOWN,
                 category
         ));
 
@@ -191,10 +190,7 @@ public class BetterHitreg implements ModInitializer {
         //version 1.19.4
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             if (client.level == null) return;
-            if (leftScore != 0 || rightScore != 0){
-                client.font.drawShadow(context, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF);
-                client.font.drawShadow
-            }
+            if (leftScore != 0 || rightScore != 0) client.font.drawShadow(context, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF);
         });
 
         //version 1.20 - 1.21.11

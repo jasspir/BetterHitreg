@@ -10,6 +10,7 @@
     "DamageMixin",
     "GLFWMixin",
     "GlowMixin",
+    "MouseMixin",
     "NetworkMixin",
     "ParticleMixin",
     "PlayerMixin",
