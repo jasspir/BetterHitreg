@@ -7,7 +7,7 @@ package you.jass.betterhitreg;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 
 //version 1.21.11-
-//import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 //version 26+
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
@@ -201,7 +201,7 @@ public class BetterHitreg implements ModInitializer {
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             if (client.level == null) return;
             if (leftScore != 0 || rightScore != 0) {
-                client.font.drawShadow(context, leftScore + " - " + rightScore, Setting.SCORE_X.get(), Setting.SCORE_Y.get(), 0xFFFFFFFF);
+                client.font.drawShadow(context, leftScore + " - " + rightScore, (int) Setting.SCORE_X.get(), (int) Setting.SCORE_Y.get(), 0xFFFFFFFF);
             }
         });
 
@@ -209,7 +209,7 @@ public class BetterHitreg implements ModInitializer {
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             if (client.level == null) return;
             if (leftScore != 0 || rightScore != 0) {
-                context.drawString(client.font, leftScore + " - " + rightScore, Setting.SCORE_X.get(), Setting.SCORE_Y.get(), 0xFFFFFFFF);
+                context.drawString(client.font, leftScore + " - " + rightScore, (int) Setting.SCORE_X.get(), (int) Setting.SCORE_Y.get(), 0xFFFFFFFF);
             }
         });
 

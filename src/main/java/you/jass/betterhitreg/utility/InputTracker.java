@@ -8,9 +8,7 @@ import net.minecraft.client.KeyMapping;
 //import org.lwjgl.glfw.GLFW;
 
 //version 26.3+
-import org.lwjgl.BufferUtils;
 import org.lwjgl.sdl.SDLMouse;
-import java.nio.FloatBuffer;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.client;
 
@@ -27,6 +25,8 @@ public class InputTracker {
     //version 26.3+
     private static double rawMovedX;
     private static double rawMovedY;
+
+    private static final boolean[] minecraftInput = new boolean[Input.values().length];
 
     public static void update() {
         Window window = client.getWindow();
@@ -54,18 +54,13 @@ public class InputTracker {
         movedX = 0;
         movedY = 0;
 
-        Input.MOUSE_DELTA_X.value = mouseDeltaX;
-        Input.MOUSE_DELTA_Y.value = mouseDeltaY;
-        set(Input.MOUSE_DELTA_X, mouseDeltaX != 0, time);
-        set(Input.MOUSE_DELTA_Y, mouseDeltaY != 0, time);
-
-        checkGLFW(window, Input.UP, client.options.keyUp);
-        checkGLFW(window, Input.DOWN, client.options.keyDown);
-        checkGLFW(window, Input.LEFT, client.options.keyLeft);
-        checkGLFW(window, Input.RIGHT, client.options.keyRight);
-        checkGLFW(window, Input.JUMP, client.options.keyJump);
-        checkGLFW(window, Input.LEFT_CLICK, client.options.keyAttack);
-        checkGLFW(window, Input.RIGHT_CLICK, client.options.keyUse);
+        checkGLFW(window, Input.UP, client.options.keyUp, time);
+        checkGLFW(window, Input.DOWN, client.options.keyDown, time);
+        checkGLFW(window, Input.LEFT, client.options.keyLeft, time);
+        checkGLFW(window, Input.RIGHT, client.options.keyRight, time);
+        checkGLFW(window, Input.JUMP, client.options.keyJump, time);
+        checkGLFW(window, Input.LEFT_CLICK, client.options.keyAttack, time);
+        checkGLFW(window, Input.RIGHT_CLICK, client.options.keyUse, time);
 
         //version 1.21.8-
         //long id = window.getWindow();
@@ -88,6 +83,11 @@ public class InputTracker {
         rawMovedX = 0;
         rawMovedY = 0;
 
+        Input.MOUSE_DELTA_X.value = rawDeltaX;
+        Input.MOUSE_DELTA_Y.value = rawDeltaY;
+        setRaw(Input.MOUSE_DELTA_X, rawDeltaX != 0, rawDeltaX, time);
+        setRaw(Input.MOUSE_DELTA_Y, rawDeltaY != 0, rawDeltaY, time);
+
         Input.MOUSE_DELTA_X.suspicious = mouseDeltaX != rawDeltaX;
         Input.MOUSE_DELTA_Y.suspicious = mouseDeltaY != rawDeltaY;
 
@@ -106,16 +106,22 @@ public class InputTracker {
     }
 
     private static void set(Input input, boolean toggled, long time) {
+        minecraftInput[input.ordinal()] = toggled;
+    }
+
+    private static void setRaw(Input input, boolean toggled, double value, long time) {
         if (input.toggled != toggled) {
             input.previousDuration = time - input.changed;
             input.changed = time;
         }
-
         input.toggled = toggled;
+        input.value = value;
     }
 
-    private static void checkGLFW(Window window, Input input, KeyMapping key) {
-        input.suspicious = input.toggled != isKeyDown(window, key);
+    private static void checkGLFW(Window window, Input input, KeyMapping key, long time) {
+        boolean rawToggled = isKeyDown(window, key);
+        input.suspicious = minecraftInput[input.ordinal()] != rawToggled;
+        setRaw(input, rawToggled, rawToggled ? 1.0 : 0.0, time);
     }
 
     private static boolean isKeyDown(Window window, KeyMapping key) {
