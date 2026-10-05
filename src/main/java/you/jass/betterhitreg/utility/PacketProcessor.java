@@ -166,7 +166,7 @@ public class PacketProcessor {
             }
 
             //a sound held for your hit arrived after you attacked, so give it the full window to be claimed by your damage event
-            long window = fromYou && sound.heldForHit ? Sound.HIT_WINDOW : (long) Setting.SOUND_RECENCY_THRESHOLD.get();
+            long window = fromYou && sound.heldForHit ? (long) Setting.SOUND_HIT_WINDOW.get() : (long) Setting.SOUND_RECENCY_THRESHOLD.get();
             boolean claimed = sound.distanceFromTimestamp(damageTimestamp) <= window;
 
             //a damage event can't claim the other side's sounds, e.g. when you trade hits and their damage event arrives first
@@ -183,7 +183,7 @@ public class PacketProcessor {
     public static void tick() {
         if (delayedSounds.isEmpty()) return;
         long now = System.currentTimeMillis();
-        long hold = Math.max(Sound.HIT_WINDOW, (long) Setting.SOUND_RECENCY_THRESHOLD.get());
+        long hold = Math.max((long) Setting.SOUND_HIT_WINDOW.get(), (long) Setting.SOUND_RECENCY_THRESHOLD.get());
         Iterator<Sound> iterator = delayedSounds.iterator();
         while (iterator.hasNext()) {
             Sound sound = iterator.next();

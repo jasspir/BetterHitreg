@@ -9,14 +9,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import you.jass.betterhitreg.hitreg.HitType;
 import you.jass.betterhitreg.hitreg.Hitreg;
+import you.jass.betterhitreg.settings.Setting;
 import you.jass.betterhitreg.settings.Toggle;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.*;
 
 public class Sound {
-    //how far apart the server can send a hit's sounds and its damage event while still counting them as the same hit
-    public static final long HIT_WINDOW = 150;
-
     public Packet<?> packet;
     public String sound;
     public Vec3 location;
@@ -101,13 +99,13 @@ public class Sound {
         long you = distanceFromTimestamp(lastAnimation);
         long them = distanceFromTimestamp(lastAttacked);
         if (isTheirHitSound() || you > them && !isYourHitSound()) return false;
-        return you <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : 50);
+        return you <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : Setting.SOUND_RECENCY_THRESHOLD.get());
     }
 
     public boolean wasFromThem() {
         long you = distanceFromTimestamp(lastAnimation);
         long them = distanceFromTimestamp(lastAttacked);
-        return !isYourHitSound() && them <= you && them <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : 50);
+        return !isYourHitSound() && them <= you && them <= (Toggle.SILENCE_OTHER_FIGHTS.toggled() ? 15 : Setting.SOUND_RECENCY_THRESHOLD.get());
     }
 
     //attack sounds play at the attacker and hurt sounds at whoever was hurt, so when you trade hits

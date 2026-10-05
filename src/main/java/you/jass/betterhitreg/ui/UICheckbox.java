@@ -49,7 +49,8 @@ public class UICheckbox implements UIElement {
             border = theme.border();
         }
 
-        if (checked && !hovered && gradient) UIUtils.drawGradientText(renderer, textRenderer, label, x, y + 2, baseText.brighter(), baseText.darker(), false);
+        if (checked && !hovered && gradient)
+            UIUtils.drawGradientText(renderer, textRenderer, label, x, y + 2, baseText.brighter(), baseText.darker(), false);
         else UIUtils.drawText(renderer, textRenderer, label, x, y + 2, baseText, false);
 
         UIUtils.renderOutline(renderer, x + gap, y, size, size, border);
@@ -58,9 +59,7 @@ public class UICheckbox implements UIElement {
     }
 
     private boolean isHovered(double mx, double my) {
-        int textWidth = textRenderer.width(label);
         int height = Math.max(size, textRenderer.lineHeight);
-
         int startX = x;
         int endX   = x + gap + size;
         int startY = y;
@@ -71,12 +70,19 @@ public class UICheckbox implements UIElement {
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
-        if (button == 0 && isHovered(mx, my)) {
+        //version 26.2-
+        //int leftClick = 0;
+
+        //version 26.3+
+        int leftClick = 1;
+
+        if (button == leftClick && isHovered(mx, my)) {
             checked = !checked;
             onChange.accept(checked);
             playSound();
             return true;
         }
+
         return false;
     }
 

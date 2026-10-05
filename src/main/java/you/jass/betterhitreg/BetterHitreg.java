@@ -15,9 +15,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import you.jass.betterhitreg.settings.Settings;
-import you.jass.betterhitreg.settings.Style;
-import you.jass.betterhitreg.settings.Toggle;
+import you.jass.betterhitreg.settings.*;
 import you.jass.betterhitreg.utility.Input;
 import you.jass.betterhitreg.utility.MultiVersion;
 import net.minecraft.client.Minecraft;
@@ -30,7 +28,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 //version 1.21.11+
 import net.minecraft.resources.Identifier;
 
-import you.jass.betterhitreg.settings.Commands;
 import you.jass.betterhitreg.ui.UIScreen;
 import you.jass.betterhitreg.utility.Render;
 
@@ -170,13 +167,26 @@ public class BetterHitreg implements ModInitializer {
             }
 
             if (scoreCooldown == 0 && !MultiVersion.isScreenOpen()) {
-                if (leftKey.consumeClick()) leftScore++;
-                if (rightKey.consumeClick()) rightScore++;
-                if (upKey.consumeClick() && (leftScore > 0 || rightScore > 0) && client.getConnection() != null) client.getConnection().sendChat(leftScore + "-" + rightScore);
+                boolean message = false;
+                if (leftKey.consumeClick()) {
+                    leftScore++;
+                    message = true;
+                }
+                if (rightKey.consumeClick()) {
+                    rightScore++;
+                    message = true;
+                }
+                if (upKey.consumeClick() && (leftScore > 0 || rightScore > 0) && client.getConnection() != null) {
+                    client.getConnection().sendChat(leftScore + "-" + rightScore);
+                    message = true;
+                }
                 if (downKey.consumeClick()) {
                     leftScore = 0;
                     rightScore = 0;
+                    message = true;
                 }
+
+                if (message) MultiVersion.message("§7scores are controlled via your arrow keys by default", "");
 
                 scoreCooldown = 5;
             }
@@ -190,19 +200,25 @@ public class BetterHitreg implements ModInitializer {
         //version 1.19.4
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             if (client.level == null) return;
-            if (leftScore != 0 || rightScore != 0) client.font.drawShadow(context, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF);
+            if (leftScore != 0 || rightScore != 0) {
+                client.font.drawShadow(context, leftScore + " - " + rightScore, Setting.SCORE_X.get(), Setting.SCORE_Y.get(), 0xFFFFFFFF);
+            }
         });
 
         //version 1.20 - 1.21.11
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             if (client.level == null) return;
-            if (leftScore != 0 || rightScore != 0) context.drawString(client.font, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF);
+            if (leftScore != 0 || rightScore != 0) {
+                context.drawString(client.font, leftScore + " - " + rightScore, Setting.SCORE_X.get(), Setting.SCORE_Y.get(), 0xFFFFFFFF);
+            }
         });
 
         //version 26.1+
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("betterhitreg", "score"), (context, tickCounter) -> {
             if (client.level == null) return;
-            if (leftScore != 0 || rightScore != 0) context.text(client.font, leftScore + " - " + rightScore, 10, 10, 0xFFFFFFFF, true);
+            if (leftScore != 0 || rightScore != 0) {
+                context.text(client.font, leftScore + " - " + rightScore, (int) Setting.SCORE_X.get(), (int) Setting.SCORE_Y.get(), 0xFFFFFFFF, true);
+            }
         });
 
         //version 1.19.4

@@ -73,7 +73,13 @@ public class UISlider implements UIElement {
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
-        if (button == 0 && mx >= x && mx <= x + width && my >= y - 3 && my <= y + 4) {
+        //version 26.2-
+        //int leftClick = 0;
+
+        //version 26.3+
+        int leftClick = 1;
+
+        if (button == leftClick && mx >= x && mx <= x + width && my >= y - 3 && my <= y + 4) {
             dragging = true;
             updateValue(mx);
             onDrag.accept(value);
@@ -95,7 +101,13 @@ public class UISlider implements UIElement {
 
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
-        if (dragging && button == 0) {
+        //version 26.2-
+        //int leftClick = 0;
+
+        //version 26.3+
+        int leftClick = 1;
+
+        if (dragging && button == leftClick) {
             dragging = false;
             onStop.accept((int) value);
             return true;

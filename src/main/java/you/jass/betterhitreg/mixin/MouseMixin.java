@@ -14,8 +14,8 @@ import you.jass.betterhitreg.utility.InputTracker;
 @Mixin(MouseHandler.class)
 public class MouseMixin {
     //version 26.3+
-    //@Inject(method = "onMove", at = @At("HEAD"))
-    //private void onMove(long handle, double x, double y, double dx, double dy, CallbackInfo ci) {
-    //    if (Toggle.DEBUG_INPUTS.toggled()) InputTracker.onMove(dx, dy);
-    //}
+    @Inject(method = "onMove", at = @At("HEAD"))
+    private void onMove(long handle, double x, double y, double dx, double dy, CallbackInfo ci) {
+        if (Toggle.DEBUG_INPUTS.toggled()) InputTracker.onMove(dx, dy);
+    }
 }

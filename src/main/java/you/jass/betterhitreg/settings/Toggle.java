@@ -6,7 +6,7 @@ public enum Toggle {
     TOGGLE("toggle", "custom hitreg", true),
     SAFE_REGS_ONLY("safeRegsOnly", "safe regs only", true),
     IGNORE_SHIELD_HOLDERS("ignoreShieldHolders", "ignore shield holders", false),
-    DEBUG_INPUTS("DebugInputs", "debug inputs", false),
+    DEBUG_INPUTS("debugInputs", "debug inputs", false),
     DEBUG_SOUNDS("debugSounds", "debug sounds", false),
     ALERT_DELAYS("alertDelays", "alert delays", false),
     ALERT_GHOSTS("alertGhosts", "alert ghosts", false),

@@ -98,7 +98,7 @@ public class Render {
         int step = (int) Setting.GRID_SIZE.get();
 
         if (!customGround && step <= 0) return;
-        double y = ground + 0.01;
+        double y = ground + Setting.GROUND_HEIGHT.get();
 
         //version 1.21.10-
         //Vec3 pos = camera.getPosition();
@@ -107,11 +107,13 @@ public class Render {
         Vec3 pos = camera.position();
 
         if (Toggle.CUSTOM_GROUND.toggled()) {
-            int size = 512;
+            int size = (int) Setting.GROUND_SIZE.get();
+
             Vec3 v0 = new Vec3(pos.x - size, y, pos.z - size);
             Vec3 v1 = new Vec3(pos.x - size, y, pos.z + size);
             Vec3 v2 = new Vec3(pos.x + size, y, pos.z + size);
             Vec3 v3 = new Vec3(pos.x + size, y, pos.z - size);
+
             MultiVersion.render(v0, v1, v2, v3, Style.GROUND.argb());
         }
 

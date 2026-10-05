@@ -5,12 +5,12 @@ import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.KeyMapping;
 
 //version 26.2-
-import org.lwjgl.glfw.GLFW;
+//import org.lwjgl.glfw.GLFW;
 
 //version 26.3+
-//import org.lwjgl.BufferUtils;
-//import org.lwjgl.sdl.SDLMouse;
-//import java.nio.FloatBuffer;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.sdl.SDLMouse;
+import java.nio.FloatBuffer;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.client;
 
@@ -25,8 +25,8 @@ public class InputTracker {
     private static double movedY;
 
     //version 26.3+
-    //private static final FloatBuffer sdlMouseX = BufferUtils.createFloatBuffer(1);
-    //private static final FloatBuffer sdlMouseY = BufferUtils.createFloatBuffer(1);
+    private static double rawMovedX;
+    private static double rawMovedY;
 
     public static void update() {
         Window window = client.getWindow();
@@ -40,22 +40,19 @@ public class InputTracker {
         set(Input.LEFT_CLICK, client.options.keyAttack.isDown(), time);
         set(Input.RIGHT_CLICK, client.options.keyUse.isDown(), time);
 
-        //26.3 clamps the cursor position to the window while the mouse is grabbed, so compare the
-        //movement minecraft received (see MouseMixin) against sdl's own relative motion instead of positions
-
         //version 26.2-
-        double mouseX = client.mouseHandler.xpos();
-        double mouseY = client.mouseHandler.ypos();
-        double mouseDeltaX = mouseX - lastMouseX;
-        double mouseDeltaY = mouseY - lastMouseY;
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
+        //double mouseX = client.mouseHandler.xpos();
+        //double mouseY = client.mouseHandler.ypos();
+        //double mouseDeltaX = mouseX - lastMouseX;
+        //double mouseDeltaY = mouseY - lastMouseY;
+        //lastMouseX = mouseX;
+        //lastMouseY = mouseY;
 
         //version 26.3+
-        //double mouseDeltaX = movedX;
-        //double mouseDeltaY = movedY;
-        //movedX = 0;
-        //movedY = 0;
+        double mouseDeltaX = movedX;
+        double mouseDeltaY = movedY;
+        movedX = 0;
+        movedY = 0;
 
         Input.MOUSE_DELTA_X.value = mouseDeltaX;
         Input.MOUSE_DELTA_Y.value = mouseDeltaY;
@@ -71,28 +68,28 @@ public class InputTracker {
         checkGLFW(window, Input.RIGHT_CLICK, client.options.keyUse);
 
         //version 1.21.8-
-        long id = window.getWindow();
+        //long id = window.getWindow();
 
         //version 1.21.9 - 26.2
         //long id = window.handle();
 
         //version 26.2-
-        GLFW.glfwGetCursorPos(id, glfwMouseX, glfwMouseY);
-        double glfwX = glfwMouseX[0];
-        double glfwY = glfwMouseY[0];
-        double rawDeltaX = glfwX - lastGLFWX;
-        double rawDeltaY = glfwY - lastGLFWY;
-        lastGLFWX = glfwX;
-        lastGLFWY = glfwY;
+        //GLFW.glfwGetCursorPos(id, glfwMouseX, glfwMouseY);
+        //double glfwX = glfwMouseX[0];
+        //double glfwY = glfwMouseY[0];
+        //double rawDeltaX = glfwX - lastGLFWX;
+        //double rawDeltaY = glfwY - lastGLFWY;
+        //lastGLFWX = glfwX;
+        //lastGLFWY = glfwY;
 
         //version 26.3+
-        //SDLMouse.SDL_GetRelativeMouseState(sdlMouseX, sdlMouseY);
-        //double rawDeltaX = sdlMouseX.get(0);
-        //double rawDeltaY = sdlMouseY.get(0);
+        double rawDeltaX = rawMovedX;
+        double rawDeltaY = rawMovedY;
+        rawMovedX = 0;
+        rawMovedY = 0;
 
-        //sdl sums its relative motion as floats while onMove hands us doubles, so allow rounding noise
-        Input.MOUSE_DELTA_X.suspicious = Math.abs(mouseDeltaX - rawDeltaX) > 0.001;
-        Input.MOUSE_DELTA_Y.suspicious = Math.abs(mouseDeltaY - rawDeltaY) > 0.001;
+        Input.MOUSE_DELTA_X.suspicious = mouseDeltaX != rawDeltaX;
+        Input.MOUSE_DELTA_Y.suspicious = mouseDeltaY != rawDeltaY;
 
         for (Input input : Input.values()) input.duration = input.changed == 0 ? 0 : time - input.changed;
     }
@@ -100,6 +97,12 @@ public class InputTracker {
     public static void onMove(double dx, double dy) {
         movedX += dx;
         movedY += dy;
+    }
+
+    //version 26.3+
+    public static void onRawMove(float dx, float dy) {
+        rawMovedX += dx;
+        rawMovedY += dy;
     }
 
     private static void set(Input input, boolean toggled, long time) {
@@ -117,24 +120,25 @@ public class InputTracker {
 
     private static boolean isKeyDown(Window window, KeyMapping key) {
         InputConstants.Key input = InputConstants.getKey(key.saveString());
+
         if (input.getType() == InputConstants.Type.MOUSE) {
             //version 1.21.8-
-            return GLFW.glfwGetMouseButton(window.getWindow(), input.getValue()) == GLFW.GLFW_PRESS;
+            //return GLFW.glfwGetMouseButton(window.getWindow(), input.getValue()) == GLFW.GLFW_PRESS;
 
             //version 1.21.9 - 26.2
             //return GLFW.glfwGetMouseButton(window.handle(), input.getValue()) == GLFW.GLFW_PRESS;
 
             //version 26.3+
-            //return (SDLMouse.SDL_GetMouseState(null, null) & (1 << (input.getValue() - 1))) != 0;
+            return (SDLMouse.SDL_GetMouseState(null, null) & (1 << (input.getValue() - 1))) != 0;
         }
 
         //version 1.21.8-
-        return InputConstants.isKeyDown(window.getWindow(), input.getValue());
+        //return InputConstants.isKeyDown(window.getWindow(), input.getValue());
 
         //version 1.21.9 - 26.2
         //return InputConstants.isKeyDown(window, input.getValue());
 
         //version 26.3+
-        //return InputConstants.isKeyDown(input.getValue());
+        return InputConstants.isKeyDown(input.getValue());
     }
 }

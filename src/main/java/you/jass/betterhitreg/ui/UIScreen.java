@@ -74,7 +74,7 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter,
                 panelHeightCenter - halfPanelHeight + 10,
-                font, "BetterHitreg v1.0.8-BETA (" + MultiVersion.getVersion() + ")",
+                font, "BetterHitreg v1.0.8 (" + MultiVersion.getVersion() + ")",
                 header, true, true
         ));
 
@@ -253,7 +253,7 @@ public class UIScreen extends Screen {
                 "Hit Muffling", "", "%",
                 font, slider, true, true,
                 v -> {},
-                Commands::setMuffle
+                v -> {Commands.setSetting(Setting.MUFFLE_AMOUNT, v);}
         ));
 
         widgets.add(new UISlider(
@@ -264,7 +264,7 @@ public class UIScreen extends Screen {
                 "Hit Sharpening", "", "%",
                 font, slider, true, true,
                 v -> {},
-                Commands::setSharpen
+                v -> {Commands.setSetting(Setting.SHARPEN_AMOUNT, v);}
         ));
 
         widgets.add(new UISlider(
@@ -275,7 +275,7 @@ public class UIScreen extends Screen {
                 "Metronome", "", "t",
                 font, slider, true, true,
                 v -> {},
-                Commands::setMetronome
+                v -> {Commands.setSetting(Setting.METRONOME, v);}
         ));
 
         widgets.add(new UILabel(
@@ -487,7 +487,7 @@ public class UIScreen extends Screen {
                 "Grid Floor", "", "b",
                 font, slider, true, true,
                 v -> {},
-                Commands::setGridSize
+                v -> {Commands.setSetting(Setting.GRID_SIZE, v);}
         ));
     }
 
@@ -564,6 +564,7 @@ public class UIScreen extends Screen {
     //version 1.21.9+
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        //System.out.println("clicked " + click.x() + " " + click.y());
         for (UIElement w : widgets) {
             if (w.mouseClicked(click.x(), click.y(), click.button())) return true;
         }
