@@ -20,6 +20,7 @@
     "SourceMixin",
     "WorldMixin"
   ],
+  "plugin": "you.jass.betterhitreg.mixin.MixinPlugin",
   "injectors": {
     "defaultRequire": 1
   }

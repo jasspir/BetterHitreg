@@ -224,8 +224,13 @@ public class BetterHitreg implements ModInitializer {
         //version 1.19.4
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             if (client.level == null || !Toggle.DEBUG_INPUTS.toggled() || MultiVersion.isScreenOpen()) return;
+            boolean updating = true;
             int y = 1;
             for (Input input : Input.values()) {
+                if (input.duration == 0 && input.previousDuration == 0) {
+                    updating = false;
+                    continue;
+                }
                 String value;
                 double ms = input.previousDuration / 1_000_000d;
                 String duration = ms < 10 ? String.format("%.2f", ms) : ms < 100 ? String.format("%.1f", ms) : String.format("%.0f", ms);
@@ -235,13 +240,19 @@ public class BetterHitreg implements ModInitializer {
                 client.font.drawShadow(context, string, 1, y, 0xFFFFFFFF);
                 y += 10;
             }
+            if (!updating) client.font.drawShadow(context, "Inputs aren't updating, this may be caused by a mod that modifies input processing, like Ixeris", 1, y, 0xFFFFFFFF);
         });
 
         //version 1.20 - 1.21.11
         HudRenderCallback.EVENT.register((context, tickCounter) -> {
             if (client.level == null || !Toggle.DEBUG_INPUTS.toggled() || MultiVersion.isScreenOpen()) return;
+            boolean updating = true;
             int y = 1;
             for (Input input : Input.values()) {
+                if (input.duration == 0 && input.previousDuration == 0) {
+                    updating = false;
+                    continue;
+                }
                 String value;
                 double ms = input.previousDuration / 1_000_000d;
                 String duration = ms < 10 ? String.format("%.2f", ms) : ms < 100 ? String.format("%.1f", ms) : String.format("%.0f", ms);
@@ -251,13 +262,19 @@ public class BetterHitreg implements ModInitializer {
                 context.drawString(client.font, string, 1, y, 0xFFFFFFFF);
                 y += 10;
             }
+            if (!updating) context.drawString(client.font, "Inputs aren't updating, this may be caused by a mod that modifies input processing, like Ixeris", 1, y, 0xFFFFFFFF);
         });
 
         //version 26+
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath("betterhitreg", "inputs"), (context, tickCounter) -> {
             if (client.level == null || !Toggle.DEBUG_INPUTS.toggled() || MultiVersion.isScreenOpen()) return;
+            boolean updating = true;
             int y = 1;
             for (Input input : Input.values()) {
+                if (input.duration == 0 && input.previousDuration == 0) {
+                    updating = false;
+                    continue;
+                }
                 String value;
                 double ms = input.previousDuration / 1_000_000d;
                 String duration = ms < 10 ? String.format("%.2f", ms) : ms < 100 ? String.format("%.1f", ms) : String.format("%.0f", ms);
@@ -267,6 +284,7 @@ public class BetterHitreg implements ModInitializer {
                 context.text(client.font, string, 1, y, 0xFFFFFFFF);
                 y += 10;
             }
+            if (!updating) context.text(client.font, "Inputs aren't updating, this may be caused by a mod that modifies input processing, like Ixeris", 1, y, 0xFFFFFFFF);
         });
     }
 }
