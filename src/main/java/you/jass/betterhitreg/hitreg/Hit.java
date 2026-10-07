@@ -19,7 +19,6 @@ import static you.jass.betterhitreg.hitreg.Hitreg.alreadyAnimated;
 import static you.jass.betterhitreg.hitreg.Hitreg.alreadyKnockedBack;
 import static you.jass.betterhitreg.hitreg.Hitreg.lastTarget;
 import static you.jass.betterhitreg.hitreg.Hitreg.newTarget;
-import static you.jass.betterhitreg.hitreg.Hitreg.sprintIsReset;
 import static you.jass.betterhitreg.utility.MultiVersion.*;
 
 public class Hit {
@@ -41,7 +40,7 @@ public class Hit {
     public boolean wasInvisible;
     public boolean wasHoldingSword;
     public boolean swordHadSharpness;
-    public boolean sprintWasReset;
+    public boolean serverWasSprinting;
 
     public boolean shouldAnimate;
     public boolean shouldMakeSound;
@@ -77,7 +76,7 @@ public class Hit {
     }
 
     public void load() {
-        shouldKnockback = !tooEarlyForSpecial && wasSprinting && sprintWasReset;
+        shouldKnockback = !tooEarlyForSpecial && serverWasSprinting;
         shouldCrit = !tooEarlyForSpecial && !shouldKnockback && wasFalling && !wasOnGround && !wasClimbing && !wasTouchingWater && !wasInVehicle && !wasBlind;
 
         //version 1.21.1-
@@ -93,6 +92,7 @@ public class Hit {
         type = HitType.of(this);
         if (type == null) return;
         expectedSound = type.getMainSound();
+        Hitreg.lastSwingWasCrit = type == HitType.CRITICAL;
 
         //decide once at hit time whether the mod replaces the server's feedback, the target's blocking state may change before the server's packets arrive
         boolean handled = Hitreg.isToggled();

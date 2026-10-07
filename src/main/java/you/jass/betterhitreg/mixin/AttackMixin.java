@@ -49,7 +49,7 @@ public abstract class AttackMixin {
         hit.wasMovingFast = MultiVersion.isMovingFast();
         hit.wasMovingForward = client.options.keyUp.isDown();
         hit.swordHadSharpness = MultiVersion.hasSharpness();
-        hit.sprintWasReset = sprintIsReset;
+        hit.serverWasSprinting = serverSprinting;
         hit.wasNewTarget = lastTarget != target.getId();
         hit.wasHitByAnother = target.invulnerableTime > 10 && sinceLastHit >= 1000;
         hit.wasInvisible = target.isInvisible();
@@ -65,9 +65,9 @@ public abstract class AttackMixin {
             lastAttackLocation = MultiVersion.getBasePosition(client.player);
             lastAttack = System.currentTimeMillis();
             lastTarget = target.getId();
-            usedItem = false;
-            lastAttackTick = tick;
-            lastHitWasSpecial = !hit.tooEarlyForSpecial;
+            //a landed knockback hit stops your sprint server side, a full strength hit only knocks back if the server
+            //had you sprinting, and a knockback enchant knocks back on every hit
+            if (!hit.tooEarlyForSpecial || MultiVersion.hasKnockback()) serverSprinting = false;
             alreadyAnimated = false;
             alreadyKnockedBack = false;
             yourHits++;
