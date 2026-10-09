@@ -106,9 +106,9 @@ public class PacketProcessor {
         //swing hand
         if (packet.getAction() == 0 || packet.getAction() == 3) Hitreg.theirSwings++;
 
-        //crit particle
+        //crit particle, only replaced when the mod predicted the crit itself, otherwise the server's crit would never show
         if (packet.getAction() == 4) {
-            if (Hitreg.lastHitHandled && withinFight) return false;
+            if (Hitreg.lastHitHandled && withinFight && Hitreg.lastSwingWasCrit) return false;
         }
 
         //enchanted particle
@@ -197,7 +197,7 @@ public class PacketProcessor {
 
     private static void release(Sound sound, Owner owner) {
         boolean shouldPlay = switch (owner) {
-            case YOU -> !Toggle.SILENCE_SELF.toggled() && !Hitreg.lastHitHandled;
+            case YOU -> !Toggle.SILENCE_SELF.toggled() && (!Hitreg.lastHitHandled || isUnpredictedCrit(sound));
             case THEM -> !Toggle.SILENCE_THEM.toggled();
             case OTHER -> !Toggle.SILENCE_OTHER_FIGHTS.toggled();
         };
@@ -250,7 +250,7 @@ public class PacketProcessor {
         }
 
         //block the sound based on whether you hit them or they hit you
-        if (fromYou && (Hitreg.lastHitHandled || Toggle.SILENCE_SELF.toggled())) {
+        if (fromYou && (Toggle.SILENCE_SELF.toggled() || Hitreg.lastHitHandled && !isUnpredictedCrit(sound))) {
             sound.reason = "from your hit";
             return false;
         }
@@ -266,9 +266,15 @@ public class PacketProcessor {
             return false;
         }
 
-        if (fromYou) sound.reason = "from your hit, custom hitreg off";
+        if (fromYou && Hitreg.lastHitHandled) sound.reason = "crit the custom hitreg didn't predict";
+        else if (fromYou) sound.reason = "from your hit, custom hitreg off";
         else if (fromThem) sound.reason = "from their hit";
         return true;
+    }
+
+    //the server landed a crit the custom hitreg didn't predict, so it never played one, let the server's through or the crit is lost
+    private static boolean isUnpredictedCrit(Sound sound) {
+        return sound.hitType == HitType.CRITICAL && !Hitreg.lastSwingWasCrit;
     }
 
     public static void debug(String text) {
@@ -281,7 +287,7 @@ public class PacketProcessor {
         debug((played ? "played " : "blocked ") + sound + ", " + (sinceDamage >= 0 ? "+" : "") + sinceDamage + "ms from target damage event: " + reason);
 
         //the server's sound played on top of your custom one, their hit's sounds are supposed to play
-        if (played && Hitreg.lastHitHandled && sound.hitType != null && sound.couldBeFromYou() && !sound.isTheirHitSound() && (sound.isYourHitSound() || !sound.reason.startsWith("from their hit"))) {
+        if (played && Hitreg.lastHitHandled && sound.hitType != null && !isUnpredictedCrit(sound) && sound.couldBeFromYou() && !sound.isTheirHitSound() && (sound.isYourHitSound() || !sound.reason.startsWith("from their hit"))) {
             message("§cpossible double §7" + sound + " (" + reason + ")", "/hitreg debugSounds");
         }
     }

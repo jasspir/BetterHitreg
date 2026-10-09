@@ -289,17 +289,25 @@ public class MultiVersion {
     }
 
     public static boolean hasSharpness() {
+        return hasEnchantment("sharpness");
+    }
+
+    public static boolean hasKnockback() {
+        return hasEnchantment("knockback");
+    }
+
+    private static boolean hasEnchantment(String name) {
         if (client.player.getMainHandItem().isEnchanted()) {
             //version 1.20.4-
 //            for (net.minecraft.nbt.Tag enchantment : client.player.getMainHandItem().getEnchantmentTags()) {
-//            if (enchantment.getAsString().contains("sharpness")) {
+//            if (enchantment.getAsString().contains(name)) {
 //            return true;
 //            }
 //            }
 
             //version 1.20.5+
             for (Holder<Enchantment> enchantment : client.player.getMainHandItem().getEnchantments().keySet()) {
-                if (enchantment.getRegisteredName().equalsIgnoreCase("minecraft:sharpness")) {
+                if (enchantment.getRegisteredName().equalsIgnoreCase("minecraft:" + name)) {
                     return true;
                 }
             }

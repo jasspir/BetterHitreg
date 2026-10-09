@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import you.jass.betterhitreg.mixin.LocalPlayerAccessor;
 import you.jass.betterhitreg.settings.Commands;
 import you.jass.betterhitreg.settings.Settings;
 import you.jass.betterhitreg.settings.Toggle;
@@ -35,8 +36,8 @@ public class Hitreg {
     public static long lastAnimation;
     public static boolean alreadyAnimated;
     public static boolean alreadyKnockedBack;
-    public static boolean wasMovingForward;
-    public static boolean sprintIsReset = true;
+    public static boolean serverSprinting;
+    public static boolean lastSentSprinting;
     public static boolean lastAttackWasBlocked;
     public static boolean lastHitHandled;
     public static boolean lastSwingHandled;
@@ -78,10 +79,7 @@ public class Hitreg {
     public static int yourHits;
     public static int theirHits;
     public static boolean wasSwinging;
-    public static boolean wasCrouching;
-    public static int lastAttackTick;
-    public static boolean usedItem;
-    public static boolean lastHitWasSpecial;
+    public static boolean lastSwingWasCrit;
     public static boolean tutorialAlreadySeen;
 
     public static void tick() {
@@ -104,28 +102,13 @@ public class Hitreg {
         updateFightState();
         updateGround();
 
-        //A hit can briefly toggle the client's sprint state while W remains held. Only a new
-        //forward input represents a real sprint reset; otherwise the next hit sounds like a
-        //sprint hit even though sprint was never reset.
-        boolean movingForward = client.options.keyUp.isDown();
-        if (movingForward && !wasMovingForward) {
-            sprintIsReset = true;
-            usedItem = true;
-        }
-        wasMovingForward = movingForward;
-
-        //when the player gets out of the shifting position their sprint resets
-        boolean crouching = client.player.isCrouching();
-        if (!crouching && wasCrouching) {
-            sprintIsReset = true;
-            usedItem = true;
-        }
-        wasCrouching = crouching;
-
-        //if the player uses an item 1-2 ticks after they hit, they maintain their sprint
-        //if forward is never let go, pick hits no longer end their sprint
-        if (tick - lastAttackTick <= 2) if (client.player.isUsingItem()) usedItem = true;
-        else if (sprintIsReset && !usedItem && lastHitWasSpecial) sprintIsReset = false;
+        //The server only learns your sprint state from the start/stop sprinting packets the client
+        //sends, and a knockback hit turns it off server side while the client keeps sprinting without
+        //telling it. Follow what was actually sent instead of guessing from W taps, crouching, or item
+        //use, a wrong guess turns the server's crit into a predicted knockback hit and the crit is lost.
+        boolean sentSprinting = ((LocalPlayerAccessor) client.player).getWasSprinting();
+        if (sentSprinting != lastSentSprinting) serverSprinting = sentSprinting;
+        lastSentSprinting = sentSprinting;
 
         boolean swinging = client.options.keyAttack.isDown();
         if (swinging && !wasSwinging) yourSwings++;
