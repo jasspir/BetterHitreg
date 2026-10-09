@@ -1,5 +1,7 @@
 package you.jass.betterhitreg.settings;
 
+import you.jass.betterhitreg.utility.Holiday;
+import you.jass.betterhitreg.utility.Palette;
 import you.jass.betterhitreg.utility.Render;
 
 import java.awt.*;
@@ -60,9 +62,7 @@ public enum Style {
         return category;
     }
 
-    public Color color() {
-        return color;
-    }
+    public Color color() {return color;}
 
     public int argb() {return argb;}
 
@@ -87,6 +87,11 @@ public enum Style {
     }
 
     public void update() {
+        if (Settings.get(colorKey()) != null) {
+            hex = Holiday.hex(name(), Settings.get(colorKey()));
+            opacity = Holiday.currentPalette() == Palette.CHRISTMAS && colorKey().equals("background_color") ? 50 : Settings.getInt(opacityKey());
+        }
+
         int alpha = Math.max(0, Math.min(255, opacity));
         java.awt.Color rgb = java.awt.Color.decode("#" + hex.replace("#", ""));
         color = new java.awt.Color(rgb.getRed(), rgb.getGreen(), rgb.getBlue(), alpha);
