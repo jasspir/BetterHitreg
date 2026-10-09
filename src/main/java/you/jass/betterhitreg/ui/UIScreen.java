@@ -74,7 +74,7 @@ public class UIScreen extends Screen {
         widgets.add(new UILabel(
                 panelWidthCenter,
                 panelHeightCenter - halfPanelHeight + 10,
-                font, "BetterHitreg v1.0.8 (" + MultiVersion.getVersion() + ")",
+                font, "BetterHitreg v1.0.8-BETA (" + MultiVersion.getVersion() + ")",
                 header, true, true
         ));
 

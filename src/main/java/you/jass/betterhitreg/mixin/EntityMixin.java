@@ -17,6 +17,8 @@ public class EntityMixin {
     @Unique private double checkTurnYaw;
     @Unique private double checkTurnPitch;
 
+    //TODO make version 26.3 support advanced mouse checking
+
     @Inject(method = "turn", at = @At("HEAD"), order = Integer.MAX_VALUE)
     private void head(double yaw, double pitch, CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
