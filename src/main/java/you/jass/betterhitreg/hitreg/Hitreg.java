@@ -5,10 +5,12 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
@@ -81,6 +83,7 @@ public class Hitreg {
     public static boolean wasSwinging;
     public static boolean lastSwingWasCrit;
     public static boolean tutorialAlreadySeen;
+    public static int lastBlockInteraction;
 
     public static void tick() {
         if (client.player == null || client.level == null) return;
@@ -88,12 +91,7 @@ public class Hitreg {
         playerId = client.player.getId();
 
         int metronome = Settings.getInt("metronome");
-
-        if (metronome >= 10) {
-            if (tick % metronome == 0) {
-                client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
-            }
-        }
+        if (metronome >= 10 && tick % metronome == 0) client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1));
 
         muffleAmount = (Math.max(0, Math.min(1, Settings.getFloat("muffle_amount"))));
         sharpenAmount = (Math.max(0, Math.min(1, Settings.getFloat("sharpen_amount"))));
@@ -102,13 +100,18 @@ public class Hitreg {
         updateFightState();
         updateGround();
 
-        //The server only learns your sprint state from the start/stop sprinting packets the client
-        //sends, and a knockback hit turns it off server side while the client keeps sprinting without
-        //telling it. Follow what was actually sent instead of guessing from W taps, crouching, or item
-        //use, a wrong guess turns the server's crit into a predicted knockback hit and the crit is lost.
+        //The server only learns your sprint state from the start/stop sprinting packets the client sends,
+        //and a knockback hit turns it off server side while the client keeps sprinting without telling it
         boolean sentSprinting = ((LocalPlayerAccessor) client.player).getWasSprinting();
         if (sentSprinting != lastSentSprinting) serverSprinting = sentSprinting;
         lastSentSprinting = sentSprinting;
+
+        //if you dig or place a block, the server resets your attack cooldown, but the client doesn't
+        //TODO right now we just use 10, which is good for swords, but not proper for all tools & your fist
+        boolean lookingAtBlock = client.hitResult != null && client.hitResult.getType() == HitResult.Type.BLOCK;
+        boolean holdingBlock = client.player.getMainHandItem().getItem() instanceof BlockItem || client.player.getOffhandItem().getItem() instanceof BlockItem;
+        boolean interactingWithBlock = client.options.keyAttack.isDown() || (client.options.keyUse.isDown() && holdingBlock);
+        if (lookingAtBlock && interactingWithBlock) lastBlockInteraction = tick;
 
         boolean swinging = client.options.keyAttack.isDown();
         if (swinging && !wasSwinging) yourSwings++;
@@ -127,9 +130,9 @@ public class Hitreg {
                 //landed
                 lastJumpReset = System.currentTimeMillis();
                 if (Toggle.ALERT_JUMP_RESETS.toggled()) {
-                    if (jumpReset == -1) message("Jump Reset §7was 1 tick before you were hit §a(landed)", "/hitreg alertjumpresets");
-                    else if (jumpReset == 0) message("Jump Reset §7was on the tick you were hit §a(landed)", "/hitreg alertjumpresets");
-                    else message("Jump Reset §7was 1 tick after you were hit §a(landed)", "/hitreg alertjumpresets");
+                    if (jumpReset == -1) message("Jump Reset §7was §f1 §7tick before you were hit §a(landed)", "/hitreg alertjumpresets");
+                    else if (jumpReset == 0) message("Jump Reset §7was §fon the §7tick you were hit §a(landed)", "/hitreg alertjumpresets");
+                    else message("Jump Reset §7was §f1 §7tick after you were hit §a(landed)", "/hitreg alertjumpresets");
                 }
             }
             else if (jumpReset >= -3 && jumpReset <= 3) {

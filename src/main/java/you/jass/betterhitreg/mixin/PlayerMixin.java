@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import you.jass.betterhitreg.hitreg.Hitreg;
 
-
 @Mixin(LocalPlayer.class)
 public abstract class PlayerMixin {
     @Inject(method = "crit", at = @At("HEAD"), cancellable = true)

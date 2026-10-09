@@ -8,6 +8,7 @@
     "AttackMixin",
     "ChunkMixin",
     "DamageMixin",
+    "EntityMixin",
     "GLFWMixin",
     "GlowMixin",
     "LocalPlayerAccessor",

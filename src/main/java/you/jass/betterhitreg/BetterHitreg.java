@@ -280,7 +280,7 @@ public class BetterHitreg implements ModInitializer {
                 String duration = ms < 10 ? String.format("%.2f", ms) : ms < 100 ? String.format("%.1f", ms) : String.format("%.0f", ms);
                 if (input == Input.MOUSE_DELTA_X || input == Input.MOUSE_DELTA_Y) value = String.valueOf(input.value);
                 else value = input.toggled ? "yes" : "no";
-                String string = "§f" + input.name + ": " + (input.toggled ? "§a" + value : "§c" + value) + " §7(" + "§e" + duration + "ms§7)" + " §7(" + (input.suspicious ? "§cfake" : "§areal") + "§7)";
+                String string = "§f" + input.name + ": " + (input.toggled ? "§a" + value : "§c" + value) + " §7(" + "§e" + duration + "ms§7)" + " §7(" + ((input == Input.MOUSE_DELTA_X || input == Input.MOUSE_DELTA_Y) && MultiVersion.getVersion().equals("26.3") ? "§826.3 not supported" : (input.suspicious ? "§cfake" : "§areal")) + "§7)";
                 context.text(client.font, string, 1, y, 0xFFFFFFFF);
                 y += 10;
             }

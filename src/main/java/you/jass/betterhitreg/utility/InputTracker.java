@@ -9,6 +9,7 @@ import net.minecraft.client.KeyMapping;
 
 //version 26.3+
 import org.lwjgl.sdl.SDLMouse;
+import you.jass.betterhitreg.settings.Toggle;
 
 import static you.jass.betterhitreg.hitreg.Hitreg.client;
 
@@ -21,6 +22,9 @@ public class InputTracker {
     private static final double[] glfwMouseY = new double[1];
     private static double movedX;
     private static double movedY;
+    private static boolean expectedTurn;
+    private static double expectedTurnX;
+    private static double expectedTurnY;
 
     //version 26.3+
     private static double rawMovedX;
@@ -146,5 +150,37 @@ public class InputTracker {
 
         //version 26.3+
         return InputConstants.isKeyDown(input.getValue());
+    }
+
+    public static void setExpectedTurn(double x, double y) {
+        expectedTurnX = x;
+        expectedTurnY = y;
+        expectedTurn = true;
+    }
+
+    public static boolean hasExpectedTurn() {
+        return expectedTurn;
+    }
+
+    public static void checkTurn(double yaw, double pitch) {
+        if (!expectedTurn) return;
+
+        double errorX = Math.abs(yaw - expectedTurnX);
+        double errorY = Math.abs(pitch - expectedTurnY);
+
+        if (errorX > 0.0001) Input.MOUSE_DELTA_X.suspicious = true;
+        if (errorY > 0.0001) Input.MOUSE_DELTA_Y.suspicious = true;
+    }
+
+    public static void clearExpectedTurn() {
+        expectedTurn = false;
+    }
+
+    public static void flagMouseX() {
+        Input.MOUSE_DELTA_X.suspicious = true;
+    }
+
+    public static void flagMouseY() {
+        Input.MOUSE_DELTA_Y.suspicious = true;
     }
 }

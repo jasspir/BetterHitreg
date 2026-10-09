@@ -41,6 +41,7 @@ public class Hit {
     public boolean wasHoldingSword;
     public boolean swordHadSharpness;
     public boolean serverWasSprinting;
+    public boolean previouslyInteractedWithBlock;
 
     public boolean shouldAnimate;
     public boolean shouldMakeSound;
@@ -76,14 +77,14 @@ public class Hit {
     }
 
     public void load() {
-        shouldKnockback = !tooEarlyForSpecial && serverWasSprinting;
-        shouldCrit = !tooEarlyForSpecial && !shouldKnockback && wasFalling && !wasOnGround && !wasClimbing && !wasTouchingWater && !wasInVehicle && !wasBlind;
+        shouldKnockback = !tooEarlyForSpecial && !previouslyInteractedWithBlock && serverWasSprinting;
+        shouldCrit = !tooEarlyForSpecial && !shouldKnockback && !previouslyInteractedWithBlock && wasFalling && !wasOnGround && !wasClimbing && !wasTouchingWater && !wasInVehicle && !wasBlind;
 
         //version 1.21.1-
-        //shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast;
+        //shouldSweep = !tooEarlyForSpecial && !shouldKnockback && !previouslyInteractedWithBlock && wasHoldingSword && wasOnGround && !wasMovingFast;
 
         //version 1.21.2+
-        shouldSweep = !tooEarlyForSpecial && !shouldKnockback && wasHoldingSword && wasOnGround && !wasMovingFast && !wasMovingForward;
+        shouldSweep = !tooEarlyForSpecial && !shouldKnockback && !previouslyInteractedWithBlock && wasHoldingSword && wasOnGround && !wasMovingFast && !wasMovingForward;
 
         shouldPick = !shouldKnockback && !shouldCrit && !shouldSweep;
         shouldFullPick = !tooEarlyForSpecial && shouldPick;
@@ -91,6 +92,7 @@ public class Hit {
 
         type = HitType.of(this);
         if (type == null) return;
+
         expectedSound = type.getMainSound();
         Hitreg.lastSwingWasCrit = type == HitType.CRITICAL;
 

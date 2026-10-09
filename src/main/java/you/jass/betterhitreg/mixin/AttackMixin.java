@@ -23,7 +23,7 @@ import static you.jass.betterhitreg.hitreg.Hitreg.*;
 public abstract class AttackMixin {
     @Inject(method = "attack", at = @At("HEAD"))
     private static void attack(Player player, Entity target, CallbackInfo ci) {
-        if (client.player == null || !(target instanceof LivingEntity) || target instanceof ArmorStand || !target.isAlive() || target.isInvulnerable()) return;
+        if (client.player == null || !(target instanceof LivingEntity) || target instanceof ArmorStand || !target.isAlive()) return;
         Hitreg.target = (LivingEntity) target;
 
         //hitting before 500ms is too fast to deal damage, lower it by half a tick (25ms) because it's not exact and can be lower
@@ -53,7 +53,8 @@ public abstract class AttackMixin {
         hit.wasNewTarget = lastTarget != target.getId();
         hit.wasHitByAnother = target.invulnerableTime > 10 && sinceLastHit >= 1000;
         hit.wasInvisible = target.isInvisible();
-
+        //TODO the server actually resets your attack cooldown on block interaction so the timing depends on the tool but 10 is fine for most cases
+        hit.previouslyInteractedWithBlock = tick - lastBlockInteraction <= 10;
 
         if (!hitEarly) {
             hitWasFarFromPrevious = lastAttackLocation.distanceToSqr(MultiVersion.getBasePosition(client.player)) >= 2500;
