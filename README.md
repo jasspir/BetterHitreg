@@ -23,8 +23,9 @@ BetterHitreg is an **open source** client-side Fabric mod for Minecraft **1.19.4
 
 ## Tested On
 The mod has been used safely on:
+- pvphq.com
 - mcpvp.club
-- flowpvp.gg
+- mcpvp.com
 - minemen.club
 - sharpness.gg / blotcraft.com
 - pvplegacy.net
