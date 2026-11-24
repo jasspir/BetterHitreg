@@ -106,7 +106,7 @@ public class Render {
         //version 1.21.11+
         Vec3 pos = camera.position();
 
-        if (Toggle.CUSTOM_GROUND.toggled()) {
+        if (customGround) {
             int size = (int) Setting.GROUND_SIZE.get();
 
             Vec3 v0 = new Vec3(pos.x - size, y, pos.z - size);
@@ -117,40 +117,59 @@ public class Render {
             MultiVersion.render(v0, v1, v2, v3, Style.GROUND.argb());
         }
 
-        if (step != 0) {
+        if (step > 0) {
             double radius = Setting.GRID_RANGE.get();
+            if (radius <= 0.0) return;
 
             int minX = (int) Math.floor((pos.x - radius) / step) * step;
             int maxX = (int) Math.ceil ((pos.x + radius) / step) * step;
             int minZ = (int) Math.floor((pos.z - radius) / step) * step;
             int maxZ = (int) Math.ceil ((pos.z + radius) / step) * step;
 
-            for (int x = minX; x <= maxX; x += step) {
-                for (int z = minZ; z <= maxZ; z += step) {
-                    if (x < maxX) drawLineIfVisible(camera, pos, new Vec3(x, y, z), new Vec3(x + step, y, z), 0, radius);
-                    if (z < maxZ) drawLineIfVisible(camera, pos, new Vec3(x, y, z), new Vec3(x, y, z + step), 0, radius);
+            // Cull with primitive coordinates; allocate Vec3 only for visible segments.
+            for (long z = minZ; z <= maxZ; z += step) {
+                for (long x = minX; x < maxX; x += step) {
+                    drawLineIfVisible(camera, pos, x, z, x + step, z, y, radius);
+                }
+            }
+
+            for (long x = minX; x <= maxX; x += step) {
+                for (long z = minZ; z < maxZ; z += step) {
+                    drawLineIfVisible(camera, pos, x, z, x, z + step, y, radius);
                 }
             }
         }
     }
 
-    private static void drawLineIfVisible(Camera camera, Vec3 playerPos, Vec3 start, Vec3 end, double fadeStart, double fadeEnd) {
-        double distToSeg = closestDistanceToSegment(playerPos, start, end);
-        if (distToSeg > fadeEnd) return;
-        double fadeProgress = Math.max(0, Math.min(1, (distToSeg - fadeStart) / (fadeEnd - fadeStart)));
-        fadeProgress = fadeProgress * fadeProgress * (3 - 2 * fadeProgress);
-        int alpha = (int) (255 * (1 - fadeProgress));
-        int color = (alpha << 24) | (Style.GRID.rgb());
-        line(camera, start, end, 3, color);
-    }
+    private static void drawLineIfVisible(
+            Camera camera, Vec3 playerPos,
+            double x1, double z1, double x2, double z2,
+            double y, double radius
+    ) {
+        double dx = x2 - x1;
+        double dz = z2 - z1;
+        double segmentLengthSquared = dx * dx + dz * dz;
+        if (segmentLengthSquared == 0.0) return;
 
-    private static double closestDistanceToSegment(Vec3 point, Vec3 segStart, Vec3 segEnd) {
-        double segLenSq = segStart.distanceToSqr(segEnd);
-        if (segLenSq == 0.0) return point.distanceTo(segStart);
-        double fraction = ((point.x - segStart.x) * (segEnd.x - segStart.x) + (point.z - segStart.z) * (segEnd.z - segStart.z)) / segLenSq;
-        fraction = Math.max(0, Math.min(1, fraction));
-        Vec3 closestPoint = new Vec3(segStart.x + fraction * (segEnd.x - segStart.x), segStart.y, segStart.z + fraction * (segEnd.z - segStart.z));
-        return point.distanceTo(closestPoint);
+        double fraction = ((playerPos.x - x1) * dx + (playerPos.z - z1) * dz) / segmentLengthSquared;
+        fraction = Math.max(0.0, Math.min(1.0, fraction));
+
+        double closestX = x1 + fraction * dx;
+        double closestZ = z1 + fraction * dz;
+        double distanceX = playerPos.x - closestX;
+        double distanceY = playerPos.y - y;
+        double distanceZ = playerPos.z - closestZ;
+        double distanceSquared = distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ;
+        double radiusSquared = radius * radius;
+        if (distanceSquared > radiusSquared) return;
+
+        double distanceToSegment = Math.sqrt(distanceSquared);
+        double fadeProgress = Math.max(0.0, Math.min(1.0, distanceToSegment / radius));
+        fadeProgress = fadeProgress * fadeProgress * (3.0 - 2.0 * fadeProgress);
+        int alpha = (int) (255 * (1.0 - fadeProgress));
+        int color = (alpha << 24) | Style.GRID.rgb();
+
+        line(camera, new Vec3(x1, y, z1), new Vec3(x2, y, z2), 3, color);
     }
 
     public static AABB getBoundingBox(Entity entity) {

@@ -73,7 +73,6 @@ public class Hitreg {
     public static int playerId;
     public static int fightsThisSession;
     public static long lastNonGhost;
-    public static int shouldFilter;
     public static float muffleAmount;
     public static float sharpenAmount;
     public static int yourSwings;
