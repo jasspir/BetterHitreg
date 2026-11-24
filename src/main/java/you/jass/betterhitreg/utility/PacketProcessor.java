@@ -29,36 +29,16 @@ public class PacketProcessor {
     public static long dealtDamageTimestamp;
     public static long tookDamageTimestamp;
 
-    private record Received(Packet<?> packet, long timestamp) {}
-
-    //when packets reached the network thread, the main thread can run a whole frame later which would skew the
-    //timing between a hit's damage event and its sounds, so every packet we compare is stamped on arrival
-    private static final Deque<Received> received = new ArrayDeque<>();
+    // Prune stale timestamps even when no damage events are pending.
+    private static final PacketStampBuffer<Packet<?>> received = new PacketStampBuffer<>(1000L);
 
     public static void stamp(Packet<?> packet) {
-        synchronized (received) {
-            received.addLast(new Received(packet, System.currentTimeMillis()));
-        }
+        received.stamp(packet, System.currentTimeMillis());
     }
 
     public static long receivedAt(Packet<?> packet) {
         long now = System.currentTimeMillis();
-        synchronized (received) {
-            Iterator<Received> iterator = received.iterator();
-            while (iterator.hasNext()) {
-                Received entry = iterator.next();
-                if (entry.packet() == packet) {
-                    iterator.remove();
-                    return entry.timestamp();
-                }
-
-                //drop stamps that were never looked up
-                if (now - entry.timestamp() > 1000) iterator.remove();
-            }
-        }
-
-        //bundled packets only ever run on the main thread, subtract 2 because it runs 1-5ms later than the network thread
-        return now - 2;
+        return received.receivedAt(packet, now, now - 2);
     }
 
     public static boolean processDamage(ClientboundDamageEventPacket packet) {
@@ -181,8 +161,10 @@ public class PacketProcessor {
 
     //release held sounds whose damage event never came, e.g. the hit ghosted or it was another fight
     public static void tick() {
-        if (delayedSounds.isEmpty()) return;
         long now = System.currentTimeMillis();
+        received.pruneExpired(now);
+
+        if (delayedSounds.isEmpty()) return;
         long hold = Math.max((long) Setting.SOUND_HIT_WINDOW.get(), (long) Setting.SOUND_RECENCY_THRESHOLD.get());
         Iterator<Sound> iterator = delayedSounds.iterator();
         while (iterator.hasNext()) {
